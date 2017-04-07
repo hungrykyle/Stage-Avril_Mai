@@ -1,7 +1,6 @@
 <?php
 
-	
-	use Goutte\Client;
+    use Goutte\Client;
     class Scrapper{
         
     private $keyword;
