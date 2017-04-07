@@ -43,7 +43,7 @@
 		$desc = "";
 		$span = $crawler->filter('li.ads-ad > div');
        	foreach ($span as $value) {	
-			if ((stristr($value->textContent, 'Pourquoi cette annonce'))!==False) {
+			if ((stristr($value->textContent, 'www'))!==False) {
 				$description []= $desc;
 				$desc ="";
 			}else{
