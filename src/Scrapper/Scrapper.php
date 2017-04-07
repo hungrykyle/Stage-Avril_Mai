@@ -52,15 +52,22 @@
 		}
 		//On rajoute la dernière annonce trouvée
 		$description []= $desc;
-		//Création d'une classe annonce. A optimiser.
-		$max = count($title);
 		$cmpt = 0;
-		//Création d'une classe Annonce pour chaque annonce
-		while ($cmpt <= $max-1)
-		{
+		if (!empty($title)){
+			$max = count($title);
+			while ($cmpt <= $max-1)
+			{
+			//Création d'une classe Annonce pour chaque annonce
 			$allAnnonce[] = new Annonce ($title[$cmpt],$link[$cmpt],$description[$cmpt+1]); //On ajoute +1 au compteur de description car le premier élément est forcément vide
 			$cmpt++; // $cmpt = $cmpt + 1
+			}
+		}else{
+			$allAnnonce[] = new Annonce ('Aucune annonce','Aucune annonce','Aucune annonce');
+			
 		}
+		
+		
+		
 		return $allAnnonce;
 	}
 	
