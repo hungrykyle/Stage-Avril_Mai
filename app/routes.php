@@ -52,6 +52,7 @@ $app->get('/scrapper/{keyword}', function ($keyword) use ($app) {
 
     require_once __DIR__.'/../src/Scrapper/Scrapper.php';
     require_once __DIR__.'/../src/Domain/Annonce.php';
+    require_once __DIR__.'/../src/DAO/DAO.php';
     
     $scrapper = New Scrapper($keyword);
     //On initialise l'url
@@ -59,6 +60,8 @@ $app->get('/scrapper/{keyword}', function ($keyword) use ($app) {
     //On scrappe et on initiliase un objet Annonce
     $annonces = $scrapper->parseKeyword();
     //On affiche
+   
+   
     return $app['twig']->render('annonce.html.twig', array('annonces' => $annonces));
 
 

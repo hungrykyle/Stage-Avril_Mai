@@ -13,9 +13,9 @@ $app['db.options'] = array(
 
     'port'     => '3306',
 
-    'dbname'   => 'mcv',
+    'dbname'   => 'stage',
 
-    'user'     => 'mcv_user',
+    'user'     => 'default_user',
 
     'password' => 'secret',
 
