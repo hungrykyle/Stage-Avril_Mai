@@ -52,12 +52,49 @@ $app->get('/scrapper/{keyword}', function ($keyword) use ($app) {
 
     require_once __DIR__.'/../src/Scrapper/Scrapper.php';
     require_once __DIR__.'/../src/Domain/Annonce.php';
+    require_once __DIR__.'/../src/DAO/DAO.php';
     
     $scrapper = New Scrapper($keyword);
     //On initialise l'url
     $scrapper->setUrl();
     //On scrappe et on initiliase un objet Annonce
     $annonces = $scrapper->parseKeyword();
+   //Enregistrement de chaque annonce
+    foreach ($annonces as $value) {
+        $app['dao.annonce']->save($value);
+        //Enregistrement de chaque lien en dessous des annonces
+        if (!empty($value->getLienAnnonce())){
+            $arrayLien = $value->getLienAnnonce();
+            foreach ($arrayLien as $lien) {
+                $lien->setIdAnnonce($value->getId());
+                $app['dao.lienannonce']->save($lien);
+            }
+        }
+        //Enregistrement de chaque mini annonce 
+        if (!empty($value->getMiniAnnonce())){
+            $arrayMini = $value->getMiniAnnonce();
+            foreach ($arrayMini as $mini) {
+                $mini->setIdAnnonce($value->getId());
+                $app['dao.miniannonce']->save($mini);
+            }
+        }
+        //Enregistrement de chaque note 
+        if (!empty($value->getScore())){
+            $score = $value->getScore();
+            $score->setIdAnnonce($value->getId());
+            $app['dao.score']->save($score);
+        }
+        if (!empty($value->getExtra())){
+            $arrayExtra = $value->getExtra();
+            foreach ($arrayExtra as $extra) {
+                $extra->setIdAnnonce($value->getId());
+                $app['dao.extra']->save($extra);
+            }
+        }
+
+
+    }
+    
     //On affiche
     return $app['twig']->render('annonce.html.twig', array('annonces' => $annonces));
 
