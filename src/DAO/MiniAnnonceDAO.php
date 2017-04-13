@@ -22,9 +22,9 @@ class MiniAnnonceDAO extends DAO
    
     public function save(MiniAnnonce $miniAnnonce) {
         $miniannonceData = array(
-            'min_title' => $miniAnnonce->getTitle(),
-            'min_id_annonce' => $miniAnnonce->getIdAnnonce(),
-            'min_desc' => $miniAnnonce->getDesc()
+            'mini_title' => $miniAnnonce->getTitle(),
+            'mini_id_annonce' => $miniAnnonce->getIdAnnonce(),
+            'mini_desc' => $miniAnnonce->getDesc()
             );
      
            // insert 

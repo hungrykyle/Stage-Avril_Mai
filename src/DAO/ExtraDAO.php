@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__.'/../DAO/DAO.php';
-require_once __DIR__.'/../Domain/MiniAnnonce.php';
+require_once __DIR__.'/../Domain/Extra.php';
 
 class ExtraDAO extends DAO 
 {

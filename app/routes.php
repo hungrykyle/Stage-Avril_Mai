@@ -22,6 +22,7 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
     'translator.domains' => array(),
 ));
 require_once __DIR__.'/../src/Form/Type/KeywordType.php';
+require_once __DIR__.'/../src/Form/Type/ChoiceKeywordType.php';
 require_once __DIR__.'/../src/Domain/Keyword.php';
 $app->match('/form', function (Request $request) use ($app) {
     $form = $app['form.factory']->create(KeywordType::class);
@@ -40,9 +41,29 @@ $app->match('/form', function (Request $request) use ($app) {
     }
 
     // display the form
-    return $app['twig']->render('form.html.twig', array('form' => $form->createView()));
+    return $app['twig']->render('keyword.html.twig', array('keywords' => $keywords,'form' => $form->createView()));
 });
 
+$app->match('/scrapper', function (Request $request) use ($app) {
+    $keywords = $app['dao.keyword']->allKeyword();
+    foreach ($keywords as $key => $value) {
+        $new[$value->getKeyword()] = $value; 
+    }
+    $formBuilder = $app['form.factory']->createBuilder(FormType::class);
+    $formBuilder->add('keywords', ChoiceType::class, array(
+        'multiple' => false,
+        'choices'  => $new,
+        ));
+    $form = $formBuilder->getForm();
+    $form->handleRequest($request);
+    if ($form->isValid()) {
+        $data = $form->getData();
+        $word = current($data);
+        return $app->redirect('scrapper/'.$word->getKeyword());
+    }
+    // display the form
+    return $app['twig']->render('test.html.twig', array('form' => $form->createView()));
+});
 
 $app->get('/scrapper/{keyword}', function ($keyword) use ($app) {
     
@@ -82,7 +103,7 @@ $app->get('/scrapper/{keyword}', function ($keyword) use ($app) {
             $score->setIdAnnonce($value->getId());
             $app['dao.score']->save($score);
         }
-        if (!empty($value->getExtra())){
+        if (null!==($value->getExtra())){
             $arrayExtra = $value->getExtra();
             foreach ($arrayExtra as $extra) {
                 $extra->setIdAnnonce($value->getId());

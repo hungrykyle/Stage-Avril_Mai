@@ -25,7 +25,7 @@
 		$this->idkey = null;
 		$this->lien_annonce = null;
 		$this->mini_annonce = null;
-		$this->extra = null;
+		$this->extra = Array();
 		$this->scoreid = null;
 	}
 		
@@ -91,8 +91,10 @@
 		public function getExtra() {
 			return $this->extra;
 		}
-		public function setExtra($autre) {
-			$this->extra = $autre;
+		public function setExtra($extra) {
+			$temp = $this->extra;
+			$temp[] = $extra;
+			$this->extra = $temp;
 			return $this;
 		}
 		public function getScore() {

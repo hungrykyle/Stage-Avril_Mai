@@ -1,0 +1,26 @@
+{% extends "layout.html.twig" %}
+
+
+{% block title %}MotClé{% endblock %}
+
+
+{% block content %}
+       <div class="starter-template">
+      <h1>Choisissez un mot clé</h1>
+        <p class="lead"> <p> Trouver les annonces correspondant à un mot</p>
+         <div class="form-group">
+        {{ form_start(form,{ 'attr':  {
+            'class': 'form-inline',}}) }}
+           {{ form_errors(form.keywords) }}
+            {{ form_widget(form.keywords, { 'attr':  {
+              'rows': '4',
+            'class': 'form-control',
+            }}) }}
+        
+
+<input type="submit" class="btn btn-primary" value="Rechercher les annonces" />
+</div>
+</div>
+{{ form_end(form) }}
+
+{% endblock %}

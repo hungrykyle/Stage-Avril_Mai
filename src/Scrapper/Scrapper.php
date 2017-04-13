@@ -39,8 +39,6 @@
 		$class = $crawler->filter('.ads-ad > *')->extract(array('class'));
 		//Pointeur des deux tableaux
        	$cmpt = 0;
-        //Compteur pour différencier les annonces
-        $num = 0;
 		//Tableau contenant toutes les annonces
         $allAnnonce = array();
 		//Test de l'existence d'une annonce
@@ -55,6 +53,8 @@
                     $note[$key] = $value;
                     }
             }
+			//On recense tous les titres
+			$h3 = $crawler->filter('.ads-ad > h3')->extract(array('_text'));
 			//On recense tous les liens
 			$cmpt_cite = 0;
 			$cite = $crawler->filter('cite._WGk')->extract(array('_text'));
@@ -64,16 +64,13 @@
             $cmpt_miniAnnonce = 0;
             while ($cmpt < $max){
 				//On regarde si la balise où on se trouve est de classe ellip, si oui cela signifie qu'on passe à une autre annonce
-                if ($class[$cmpt] === 'ellip') {
-					$num = $num + 1;
-					if(isset($extra)){
-						$annonce->setExtra($extra);
-					}
+                if ($class[$cmpt] === 'ellip' and (in_array($text[$cmpt], $h3))) {
+				
 					if(isset($annonce)){
 						$allAnnonce[] = $annonce;
 					}
 					$annonce = New Annonce();
-					$extra = Array();
+	
 					$annonce->setTitle($text[$cmpt]);
                 }
 				//Lien
@@ -122,9 +119,10 @@
                     $cmpt_note = $cmpt_note +1;
                 }
                 else{ 
-					$new_extra = New extra();
+					$new_extra = New Extra();
 					$new_extra->setText($text[$cmpt]);
-				    $extra[] = ($new_extra);
+					$annonce->setExtra($new_extra);
+				
                 }
                 $cmpt++;}
 				$allAnnonce[] = $annonce;

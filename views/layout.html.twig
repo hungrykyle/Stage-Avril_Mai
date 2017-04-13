@@ -3,15 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{{ asset('/lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/style.css') }}" rel="stylesheet">
     <title>Outil de monitoring - {% block title %}{% endblock %}</title>
 </head>
 <body>
  <div class="container">
-        <nav class="navbar navbar-default navbar-fixed-top navbar-inverse" role="navigation">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
             <div class="container">
                 <div class="navbar-header">
                 <a href="#" class="navbar-left"><img src="{{ asset('/img/logo-okki.png') }}" width="50px"></a>
@@ -20,14 +19,17 @@
                 <ul class="nav navbar-nav">
                 <li class="active"><a href="http://localhost/test/projet/web/">Home</a></li>
                 <li><a href="http://localhost/test/projet/web/index.php/form">Form</a></li>
+                 <li><a href="http://localhost/test/projet/web/index.php/scrapper">Scrapper</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                    <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
                 </ul>
                 <div class="collapse navbar-collapse" id="navbar-collapse-target">
                 </div>
+                </div>
+            </nav>
             </div><!-- /.container -->
-        </nav>
+        
      
        <div class="container">
 
@@ -36,9 +38,11 @@
 
 
     </div>
-        <footer class="footer">
-            Outil de monitoring.
-        </footer>
+    <footer class="footer">
+        <div class="container">
+        <p class="text-muted">© Copyright 2001 - 2017 | Mentions légales | Politique de Gestion des Cookies | Conditions Générales de Vente | Plan du site | Tous droits Réservés | Okki.</p>
+    </div>
+    </footer>
   
 </body>
 </html>
