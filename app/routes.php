@@ -21,25 +21,22 @@ $app->register(new Silex\Provider\ValidatorServiceProvider());
 $app->register(new Silex\Provider\TranslationServiceProvider(), array(
     'translator.domains' => array(),
 ));
-
+require_once __DIR__.'/../src/Form/Type/KeywordType.php';
+require_once __DIR__.'/../src/Domain/Keyword.php';
 $app->match('/form', function (Request $request) use ($app) {
-$form = $app['form.factory']->createBuilder(FormType::class)
-    ->add('Keyword', TextType::class, array(
-        //Gestion des erreurs
-        'constraints' => array(new Assert\NotBlank())
-    ))
-    ->getForm();
-    
+    $form = $app['form.factory']->create(KeywordType::class);
+    $keywords = $app['dao.keyword']->allKeyword();
     $form->handleRequest($request);
 
     if ($form->isValid()) {
         $data = $form->getData();
         $word = current($data);
-
-        // do something with the data
-
-        // redirect somewhere
-        return $app->redirect('scrapper/'.$word);
+        $keyword = new Keyword();
+        $keyword->setKeyword($word);
+        $app['dao.keyword']->save($keyword);
+        $keywords = $app['dao.keyword']->allKeyword();
+        
+        
     }
 
     // display the form
@@ -52,6 +49,7 @@ $app->get('/scrapper/{keyword}', function ($keyword) use ($app) {
 
     require_once __DIR__.'/../src/Scrapper/Scrapper.php';
     require_once __DIR__.'/../src/Domain/Annonce.php';
+    
     require_once __DIR__.'/../src/DAO/DAO.php';
     
     $scrapper = New Scrapper($keyword);

@@ -72,3 +72,8 @@ $app['dao.extra'] = function ($app) {
     return new ExtraDAO($app['db']);
 
 };
+$app['dao.keyword'] = function ($app) {
+
+    return new KeywordDAO($app['db']);
+
+};
