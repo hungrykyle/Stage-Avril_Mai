@@ -5,35 +5,43 @@
 
 
 {% block content %}
-       <div class="starter-template">
-      <h1>Entrez un mot clé</h1>
-        <p class="lead"> <p> Trouver les annonces correspondant à un mot</p>
-        <div class="form-group">
-        {{ form_start(form,{ 'attr':  {
+    <div class="starter-template">
+    <h1>Entrez un mot clé</h1>    
+    <p class="lead"> <p> Trouver les annonces correspondant à un mot</p>
+    <div class="form-group">
+    {{ form_start(form,{ 'attr':  {
             'class': 'form-inline',}}) }}
             {{ form_errors(form.keyword) }}
-    {{ form_widget(form.keyword, { 'attr':  {
-    'rows': '4',
-    'class': 'form-control',
-    'placeholder': 'Entrez un mot clé'
-    }}) }}
-    
-    
-
-<input type="submit" class="btn btn-primary" value="Ajouter ce mot clé" />
-</div>
-</div>
-{{ form_end(form) }}
-
-
-<div class="row">
+        {{ form_widget(form.keyword, { 'attr':  {
+        'rows': '4',
+        'class': 'form-control',
+        'placeholder': 'Entrez un mot clé'
+        }}) }}
+        <input type="submit" class="btn btn-primary" value="Ajouter ce mot clé" />
+    {{ form_end(form) }}
+    </div>
+    </div>
+    <div class="row">
         <h1>Vos mots clés</h1>
-       
-      
-       {% for keyword in keywords %}
-        <div class="col-sm-3">
-            <p>{{keyword.Keyword}}</p>
-        </div>
+        {% for keyword in keywords %}
+            <div class="col-sm-3">
+                <a data-toggle="modal" href="#{{keyword.Id}}" >{{keyword.Keyword}}</a>
+                <div class="modal" id="{{keyword.Id}}">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title"> {{keyword.Keyword}}</h4>
+                            </div>
+                            <div class="modal-body">
+                          
+                            <a href="http://localhost/test/projet/web/index.php/keyword/update/{{keyword.Id}}" class="btn btn-primary" />Modifier ce mot clé</a>
+                            <a href="http://localhost/test/projet/web/index.php/keyword/delete/{{keyword.Id}}" class="btn btn-primary" />Supprimer ce mot clé</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-        </div>
+    </div>
 {% endblock %}

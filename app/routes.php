@@ -24,24 +24,46 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
 require_once __DIR__.'/../src/Form/Type/KeywordType.php';
 require_once __DIR__.'/../src/Form/Type/ChoiceKeywordType.php';
 require_once __DIR__.'/../src/Domain/Keyword.php';
-$app->match('/form', function (Request $request) use ($app) {
+$app->match('/keyword', function (Request $request) use ($app) {
     $form = $app['form.factory']->create(KeywordType::class);
     $keywords = $app['dao.keyword']->allKeyword();
     $form->handleRequest($request);
-
     if ($form->isValid()) {
         $data = $form->getData();
         $word = current($data);
-        $keyword = new Keyword();
-        $keyword->setKeyword($word);
-        $app['dao.keyword']->save($keyword);
-        $keywords = $app['dao.keyword']->allKeyword();
-        
+        return $app->redirect('keyword/add/'.$word);
         
     }
+    
 
     // display the form
     return $app['twig']->render('keyword.html.twig', array('keywords' => $keywords,'form' => $form->createView()));
+});
+$app->get('/keyword/add/{word}', function ($word) use ($app) {
+    $keyword = new Keyword();
+    $keyword->setKeyword($word);
+    $app['dao.keyword']->save($keyword);
+    $keywords = $app['dao.keyword']->allKeyword();
+    return $app->redirect('../../keyword');
+});
+$app->match('/keyword/update/{id}', function ($id,Request $request) use ($app) {
+    
+    $keyword = $app['dao.keyword']->idKeyword($id);
+    $form_modif = $app['form.factory']->create(KeywordType::class);
+    $form_modif->handleRequest($request);
+    if ($form_modif->isValid()) {
+        $data = $form_modif->getData();
+        $word = current($data);
+        $keyword->setKeyword($word);
+        $app['dao.keyword']->update($keyword);
+        return $app->redirect('../../keyword');
+    }
+    return $app['twig']->render('update.html.twig', array('keyword' => $keyword,'form_modif' => $form_modif->createView()));
+});
+$app->get('/keyword/delete/{id}', function ($id) use ($app) {
+    $keyword = $app['dao.keyword']->idKeyword($id);
+    $app['dao.keyword']->delete($keyword);
+    return $app->redirect('../../keyword');
 });
 
 $app->match('/scrapper', function (Request $request) use ($app) {
@@ -75,9 +97,9 @@ $app->get('/scrapper/{keyword}', function ($keyword) use ($app) {
     
     $scrapper = New Scrapper($keyword);
     //On initialise l'url
-    $scrapper->setUrl();
+    $scrapper->setUrlBing();
     //On scrappe et on initiliase un objet Annonce
-    $annonces = $scrapper->parseKeyword();
+    $annonces = $scrapper->parseKeywordBing();
    //Enregistrement de chaque annonce
     foreach ($annonces as $value) {
         $app['dao.annonce']->save($value);

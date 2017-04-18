@@ -24,7 +24,12 @@
 	}
 	//Préparation du lien
 	public function setUrl() {
-		$url = 'http://www.google.fr/search?q='.$this->keyword.'&ie=utf-8&oe=utf-8&client=firefox-b-ab&gfe_rd=cr&ei=8FHjWL6aBOva8AfKjaDACg/';
+		$url = 'http://www.google.fr/search?q='.$this->keyword.'/';
+		$this->url = $url;
+		return $this;
+	}
+	public function setUrlBing() {
+		$url = 'http://www.bing.com/search?q='.$this->keyword.'/';
 		$this->url = $url;
 		return $this;
 	}
@@ -141,4 +146,58 @@
 		return $allAnnonce;
 	}
 	
+	public function parseKeywordBing() {
+
+		//Instanciation d'une classe de goutte
+		$client = new Client();
+		$crawler = $client->request('GET', $this->url);
+		//Récupération de tous le code qui concerne les annonces
+		$text = $crawler->filter('.sb_add.sb_adTA > .b_caption > *')->extract(array('_text'));
+		//Récupération de tous les classes qui concerne les balises des annonces
+		$class = $crawler->filter('.sb_add.sb_adTA > .b_caption > *')->extract(array('class'));
+		$max = $crawler->filter('.sb_add.sb_adTA > .b_caption')->extract(array('class'));
+		if (empty($text)){
+			$annonce = new Annonce();
+			$annonce->setTitle("Aucune annonce");
+			$annonce->setLink("Aucune lien");	
+			$annonce->setDesc("Aucune description");
+			$allAnnonce[] = $annonce;
+		}else{
+			$elements = count($text);
+			$nbr_annonces = count($max);
+			$cmpt = 0;
+			$allAnnonce = array();
+			while ($cmpt < $nbr_annonces) {
+				$annonce = New Annonce();
+				$titles = $crawler->filter('.sb_add.sb_adTA > h2 > a')->extract(array('_text'));
+				$annonce->setTitle($titles[$cmpt]);
+				$links = $crawler->filter('.sb_add.sb_adTA > div > div > cite')->extract(array('_text'));
+				$annonce->setLink($links[$cmpt]);
+				$allAnnonce[] = $annonce;
+				$cmpt = $cmpt +1;
+			}
+			$cmpt_elements = 0;
+			$cmpt_annonces = -1;
+			while ($cmpt_elements < $elements){
+				if ($class[$cmpt_elements] === 'b_attribution') { 	
+					$cmpt_annonces = $cmpt_annonces+1;
+				}
+				elseif($class[$cmpt_elements] === ''){
+					$allAnnonce[$cmpt_annonces]->setDesc($text[$cmpt_elements]);
+				}
+				elseif ($class[$cmpt_elements] === 'b_secondaryText') {
+					$new_extra = New Extra();
+					$new_extra->setText($text[$cmpt_elements]);
+					$allAnnonce[$cmpt_annonces]->setExtra($new_extra);
+				}
+				
+			$cmpt_elements = $cmpt_elements +1;
+			}
+
+
+
+
+		}
+		return $allAnnonce;
+	}
 	}

@@ -19,7 +19,7 @@
         public function __construct() {
 		$this->title = null;
 		$this->link = null;
-		$this->desc = null;
+		$this->desc = '';
 		$this->user = null;
 		$this->id = null;
 		$this->idkey = null;
@@ -50,7 +50,7 @@
 			return $this->desc;
 		}
 		public function setDesc($desc) {
-			$this->desc = $desc;
+			$this->desc .= $desc.' ';
 			return $this;
 		}
 		public function getIdUser() {

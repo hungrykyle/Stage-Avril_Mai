@@ -6,6 +6,9 @@
  <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{{ asset('/lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/style.css') }}" rel="stylesheet">
+    <script src="{{ asset('/lib/bootstrap/js/jquery.js') }}"></script>
+    <script src="{{ asset('/lib/bootstrap/js/bootstrap.min.js') }}"></script>
+    
     <title>Outil de monitoring - {% block title %}{% endblock %}</title>
 </head>
 <body>
@@ -18,7 +21,7 @@
                 <a class="navbar-brand" href="">Interface de monitoring</a>
                 <ul class="nav navbar-nav">
                 <li class="active"><a href="http://localhost/test/projet/web/">Home</a></li>
-                <li><a href="http://localhost/test/projet/web/index.php/form">Form</a></li>
+                <li><a href="http://localhost/test/projet/web/index.php/keyword">Keyword</a></li>
                  <li><a href="http://localhost/test/projet/web/index.php/scrapper">Scrapper</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
