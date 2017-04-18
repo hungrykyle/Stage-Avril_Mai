@@ -7,6 +7,7 @@
         private $id;
 		private $id_annonce;
         private $title;
+		private $link;
         
 
 		//Titre
@@ -15,6 +16,13 @@
 		}
 		public function setTitle($title) {
 			$this->title = $title;
+			return $this;
+		}
+		public function getLink() {
+			return $this->link;
+		}
+		public function setLink($link) {
+			$this->link = $link;
 			return $this;
 		}
 		public function getId() {

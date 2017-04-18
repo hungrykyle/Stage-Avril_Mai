@@ -89,11 +89,36 @@
                 }
 				//Classe css qui indique si des liens en dessous sont présent ou non 
                 elseif ($class[$cmpt] === '_gBb'){
-                    $node = $crawler->filter('._gBb > *:nth-child('.$cmpt_node.') > * > *');
+                    $title = $crawler->filter('._gBb > *:nth-child('.$cmpt_node.') > * > *')->extract(array('_text'));
+					$all_minilinks = $crawler->filter('._gBb > *:nth-child('.$cmpt_node.') > * > * > * > *')->extract(array('href'));
+					foreach ($all_minilinks as $value) {
+						$next = 'http://www.googleadservices.com/pagead'.$value;
+						$next_crawler = $client->request('GET', $next);
+						$links = $next_crawler->filter('* > a:first-child')->extract(array('_text'));
+						$link = $links[0];
+						$pos = explode("ds_dest_url=", $link);
+						if (isset($pos[1])) {
+							$pre_link = $pos[1];
+							$pos = explode("?sitelink", $pre_link);
+							$post_link = $pos[0];
+							$minilinks[] = $post_link;
+						}else{
+							$minilinks[] = $link;
+
+						}
+						
+					}
+					$cmpt_links = 0;
+					$nodes = Array();
+					while ($cmpt_links < count($title)) {
+						$nodes[$title[$cmpt_links]] = $minilinks[$cmpt_links];
+						$cmpt_links = $cmpt_links +1;
+					}
 					//Tableau de lien
-                    foreach ($node as $value) {
+                    foreach ($nodes as $key => $value) {
 						$lien = new LienAnnonce();
-						$lien->setTitle($value->textContent);
+						$lien->setTitle($key);
+						$lien->setLink($value);
                         $allnode[] = $lien;
 						$annonce->setLienAnnonce($allnode);
                     }
@@ -105,12 +130,25 @@
                     $title = $crawler->filter('._Ctg > * > * > * > * > h3')->extract(array('_text'));
 					//On récupère tout les paragraphes
                     $desc = $crawler->filter('._Ctg > * > * > * > * > div')->extract(array('_text'));
+					$all_minilinks = $crawler->filter('._Ctg > * > * > * > * > h3 > *')->extract(array('href'));
+					foreach ($all_minilinks as $value) {
+						$next = 'http://www.googleadservices.com/pagead'.$value;
+						$next_crawler = $client->request('GET', $next);
+						$links = $next_crawler->filter('* > a:first-child')->extract(array('_text'));
+						$link = $links[0];
+						$pos = explode("ds_dest_url=", $link);
+						$pre_link = $pos[1];
+						$pos = explode("?sitelink", $pre_link);
+						$post_link = $pos[0];
+						$minilinks[] = $post_link;
+					}
                     $nbr_title = count($title);
                     while ($cmpt_miniAnnonce < $nbr_title){
 						//On ajoute chaque objet MiniAnnonce à une tableau
 						$miniAnnonce = new MiniAnnonce();
                         $miniAnnonce->setTitle($title[$cmpt_miniAnnonce]);
 						$miniAnnonce->setDesc($desc[$cmpt_miniAnnonce]);
+						$miniAnnonce->setLink($minilinks[$cmpt_miniAnnonce]);
 						$allMiniAnnonce[] = $miniAnnonce;
 						$cmpt_miniAnnonce = $cmpt_miniAnnonce +1;
                     }

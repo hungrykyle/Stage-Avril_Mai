@@ -23,6 +23,7 @@ class LienAnnonceDAO extends DAO
     public function save(LienAnnonce $lienAnnonce) {
         $lienannonceData = array(
             'lien_title' => $lienAnnonce->getTitle(),
+            'lien_link' => $lienAnnonce->getLink(),
             'lien_id_annonce' => $lienAnnonce->getIdAnnonce(),
             );
      

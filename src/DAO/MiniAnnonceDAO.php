@@ -24,6 +24,7 @@ class MiniAnnonceDAO extends DAO
         $miniannonceData = array(
             'mini_title' => $miniAnnonce->getTitle(),
             'mini_id_annonce' => $miniAnnonce->getIdAnnonce(),
+            'mini_link' => $miniAnnonce->getLink(),
             'mini_desc' => $miniAnnonce->getDesc()
             );
      

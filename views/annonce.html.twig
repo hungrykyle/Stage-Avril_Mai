@@ -28,6 +28,7 @@
         {% for mini in annonce.MiniAnnonce %}
         <div class="col-sm-3">
             <p> {{mini.Title}} </p>
+            <a href="{{mini.Link}}">{{mini.Link}}</a>
             <p> {{mini.Desc}} </p>
         </div>
         {% endfor %}
@@ -39,6 +40,7 @@
     <h4> Lien Annonces </h4>
     {% for lien in annonce.LienAnnonce %}
         <p> {{lien.Title}} </p>
+        <a href="{{lien.Link}}">{{lien.Link}}</a>
     {% endfor %}
     {% endif %}
     

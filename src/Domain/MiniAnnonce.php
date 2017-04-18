@@ -6,13 +6,20 @@
         private $desc;
 		private $id_annonce;
 		private $id;
-     
+		private $link;
 		//Titre
 		public function getTitle() {
 			return $this->title;
 		}
 		public function setTitle($title) {
 			$this->title = $title;
+			return $this;
+		}
+		public function getLink() {
+			return $this->link;
+		}
+		public function setLink($link) {
+			$this->link = $link;
 			return $this;
 		}
 		//Description de l'annonce
