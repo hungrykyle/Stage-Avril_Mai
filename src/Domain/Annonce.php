@@ -14,6 +14,8 @@
 		private $mini_annonce;
 		private $extra;
 		private $score;
+		private $nav;
+		private $date;
 
 
         public function __construct() {
@@ -27,6 +29,8 @@
 		$this->mini_annonce = null;
 		$this->extra = Array();
 		$this->scoreid = null;
+		$this->nav = null;
+		$this->date = null;
 	}
 		
      	//Titre
@@ -104,4 +108,19 @@
 			$this->score = $score;
 			return $this;
 		}
+		public function getNav() {
+			return $this->nav;
+		}
+		public function setNav($nav) {
+			$this->nav = $nav;
+			return $this;
+		}
+		public function getDate() {
+			return $this->date;
+		}
+		public function setDate($date) {
+			$this->date = $date;
+			return $this;
+		}
+
 }

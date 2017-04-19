@@ -22,13 +22,14 @@ class AnnonceDAO extends DAO
    
     public function save(Annonce $annonce) {
         $annonce->setIdUser(2);
-        $annonce->setIdKeyword(2);
         $annonceData = array(
             'user_id' => $annonce->getIdUser(),
             'keyword_id' => $annonce->getIdkeyword(),
             'ann_title' => $annonce->getTitle(),
             'ann_link' => $annonce->getLink(),
-            'ann_desc' => $annonce->getDesc()
+            'ann_desc' => $annonce->getDesc(),
+            'ann_nav' => $annonce->getNav(),
+            'ann_date' => $annonce->getDate()
             );
      
            // insert 

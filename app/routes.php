@@ -22,7 +22,6 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
     'translator.domains' => array(),
 ));
 require_once __DIR__.'/../src/Form/Type/KeywordType.php';
-require_once __DIR__.'/../src/Form/Type/ChoiceKeywordType.php';
 require_once __DIR__.'/../src/Domain/Keyword.php';
 $app->match('/keyword', function (Request $request) use ($app) {
     $form = $app['form.factory']->create(KeywordType::class);
@@ -74,34 +73,57 @@ $app->match('/scrapper', function (Request $request) use ($app) {
     $formBuilder = $app['form.factory']->createBuilder(FormType::class);
     $formBuilder->add('keywords', ChoiceType::class, array(
         'multiple' => false,
-        'choices'  => $new,
+        'choices'  => array( 'Mot clé' => $new),
         ));
+    $formBuilder->add('nav', ChoiceType::class, array(
+        'multiple' => false,
+        'choices'  => array(
+        'Navigateur' => array(
+            'Google' => 'Google',
+            'Bing' => 'Bing',
+            'Les deux' => 'All'),
+        ),));
     $form = $formBuilder->getForm();
     $form->handleRequest($request);
-    if ($form->isValid()) {
+    if ($form->isSubmitted() && $form->isValid()) {
         $data = $form->getData();
         $word = current($data);
-        return $app->redirect('scrapper/'.$word->getKeyword());
+        next($data);
+        $nav = current($data);
+        
+        return $app->redirect('scrapper/'.$word->getId().'/'.$nav);
     }
     // display the form
     return $app['twig']->render('test.html.twig', array('form' => $form->createView()));
 });
 
-$app->get('/scrapper/{keyword}', function ($keyword) use ($app) {
+$app->get('/scrapper/{id}/{nav}', function ($id,$nav) use ($app) {
     
 
     require_once __DIR__.'/../src/Scrapper/Scrapper.php';
     require_once __DIR__.'/../src/Domain/Annonce.php';
     
     require_once __DIR__.'/../src/DAO/DAO.php';
+    $keyword = $app['dao.keyword']->idKeyword($id);
+    $scrapper = New Scrapper($keyword->getKeyword());
+    //On initialise l'url et on scrappe
+    if ($nav=="Google") {
+        $scrapper->setUrl();
+        $annonces = $scrapper->parseKeyword();
+    } elseif ($nav=="Bing") {
+       $scrapper->setUrlBing();
+       $annonces = $scrapper->parseKeywordBing();
+    } elseif($nav=="All") {
+        $scrapper->setUrl();
+        $annoncesGoogle = $scrapper->parseKeyword();
+        $scrapper->setUrlBing();
+        $annoncesBing = $scrapper->parseKeywordBing();
+        $annonces = array_merge($annoncesGoogle,$annoncesBing);
+    }
     
-    $scrapper = New Scrapper($keyword);
-    //On initialise l'url
-    $scrapper->setUrlBing();
-    //On scrappe et on initiliase un objet Annonce
-    $annonces = $scrapper->parseKeywordBing();
    //Enregistrement de chaque annonce
     foreach ($annonces as $value) {
+        $value->setIdKeyword($id);   
         $app['dao.annonce']->save($value);
         //Enregistrement de chaque lien en dessous des annonces
         if (!empty($value->getLienAnnonce())){

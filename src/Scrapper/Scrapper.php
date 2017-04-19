@@ -75,7 +75,8 @@
 						$allAnnonce[] = $annonce;
 					}
 					$annonce = New Annonce();
-	
+					$annonce->setDate(date("Y/n/j"));
+					$annonce->setNav("Google");
 					$annonce->setTitle($text[$cmpt]);
                 }
 				//Lien
@@ -175,6 +176,8 @@
 			$annonce->setTitle("Aucune annonce");
 			$annonce->setLink("Aucune lien");	
 			$annonce->setDesc("Aucune description");
+			$annonce->setDate(date("Y/n/j"));
+			$annonce->setNav("Google");
 			$allAnnonce[] = $annonce;
 			
 		}
@@ -199,6 +202,8 @@
 			$annonce->setTitle("Aucune annonce");
 			$annonce->setLink("Aucune lien");	
 			$annonce->setDesc("Aucune description");
+			$annonce->setDate(date("Y/n/j"));
+			$annonce->setNav("Bing");
 			$allAnnonce[] = $annonce;
 		}else{
 			$elements = count($text);
@@ -207,6 +212,8 @@
 			$allAnnonce = array();
 			while ($cmpt < $nbr_annonces) {
 				$annonce = New Annonce();
+				$annonce->setDate(date("Y/n/j"));
+				$annonce->setNav("Bing");
 				$titles = $crawler->filter('.sb_add.sb_adTA > h2 > a')->extract(array('_text'));
 				$annonce->setTitle($titles[$cmpt]);
 				$links = $crawler->filter('.sb_add.sb_adTA > div > div > cite')->extract(array('_text'));
@@ -214,75 +221,74 @@
 				$allAnnonce[] = $annonce;
 				$cmpt = $cmpt +1;
 			}
-		}
-		$cmpt_elements = 0;
-		$cmpt_annonces = -1;
-		while ($cmpt_elements < $elements){
-			if ($class[$cmpt_elements] === 'b_attribution') { 	
-				$cmpt_annonces = $cmpt_annonces+1;
-			}
-			elseif($class[$cmpt_elements] === ''){
-				$allAnnonce[$cmpt_annonces]->setDesc($text[$cmpt_elements]);
-			}
-			elseif ($class[$cmpt_elements] === 'b_secondaryText') {
-				$new_extra = New Extra();
-				$new_extra->setText($text[$cmpt_elements]);
-				$allAnnonce[$cmpt_annonces]->setExtra($new_extra);
-			}
-			$cmpt_elements = $cmpt_elements +1;
-		}
-		$class_lienannonces = $crawler->filter('.sb_add.sb_adTA > *')->extract(array('class'));
-		$classes = count($class_lienannonces);
-		$cmpt_classes = 0;
-		$cmpt_bcaptions = -1;
-		while ($cmpt_classes < $classes) {
-			if ($class_lienannonces[$cmpt_classes] === 'b_caption') {
-				if(!empty($all_lienannonce)){
-						$allAnnonce[$cmpt_bcaptions]->setLienAnnonce($all_lienannonce);
+			$cmpt_elements = 0;
+			$cmpt_annonces = -1;
+			while ($cmpt_elements < $elements){
+				if ($class[$cmpt_elements] === 'b_attribution') { 	
+					$cmpt_annonces = $cmpt_annonces+1;
 				}
-				if(!empty($all_miniannonce)){
-						$allAnnonce[$cmpt_bcaptions]->setMiniAnnonce($all_miniannonce);
+				elseif($class[$cmpt_elements] === ''){
+					$allAnnonce[$cmpt_annonces]->setDesc($text[$cmpt_elements]);
 				}
-				$cmpt_bcaptions = $cmpt_bcaptions + 1;
-				$all_miniannonce= Array();
-				$all_lienannonce= Array();
-			}elseif($class_lienannonces[$cmpt_classes] === 'b_vlist2col b_deep'){
-				$annonces =  $crawler->filter('.sb_add.sb_adTA > .b_vlist2col.b_deep');
-				$miniannonces = $annonces->eq($cmpt_bcaptions)->filter('li');
-				$cmpt_miniannonces = 0;
-					while ($cmpt_miniannonces < count($miniannonces)) {
-						$miniannonce_title= $miniannonces->eq($cmpt_miniannonces)->filter('h3')->extract(array('_text'));
-						if (count($miniannonce_title) == 1) {
-							$miniannonce_desc= $miniannonces->eq($cmpt_miniannonces)->filter('div')->extract(array('_text'));
-							$new_mini_annonce = New MiniAnnonce();
-							$desc ='';
-							foreach ($miniannonce_desc as $value) {
-								$desc .= $value.' ';
-							}
-							$link = $miniannonces->eq($cmpt_miniannonces)->filter('a')->extract(array('href'));
-							$new_mini_annonce->setTitle($miniannonce_title[0]);
-							$new_mini_annonce->setLink($link[0]);
-							$new_mini_annonce->setDesc($desc);
-							$all_miniannonce[] = $new_mini_annonce;
-						} else {
-							$lienannonce= $miniannonces->eq($cmpt_miniannonces)->filter('a')->extract(array('_text'));
-							$links= $miniannonces->eq($cmpt_miniannonces)->filter('a')->extract(array('href'));
-							$cmpt = 0;
-							foreach ($lienannonce as $value) {
-								$new_lienannonce = new LienAnnonce();
-								$new_lienannonce->setLink($links[$cmpt]);
-								$new_lienannonce->setTitle($value);
-								$all_lienannonce[] = $new_lienannonce;
-								$cmpt = $cmpt + 1;
-							}
-						}
-					$cmpt_miniannonces = $cmpt_miniannonces +1;
+				elseif ($class[$cmpt_elements] === 'b_secondaryText') {
+					$new_extra = New Extra();
+					$new_extra->setText($text[$cmpt_elements]);
+					$allAnnonce[$cmpt_annonces]->setExtra($new_extra);
+				}
+				$cmpt_elements = $cmpt_elements +1;
+			}
+			$class_lienannonces = $crawler->filter('.sb_add.sb_adTA > *')->extract(array('class'));
+			$classes = count($class_lienannonces);
+			$cmpt_classes = 0;
+			$cmpt_bcaptions = -1;
+			while ($cmpt_classes < $classes) {
+				if ($class_lienannonces[$cmpt_classes] === 'b_caption') {
+					if(!empty($all_lienannonce)){
+							$allAnnonce[$cmpt_bcaptions]->setLienAnnonce($all_lienannonce);
 					}
-				}
-				$cmpt_classes = $cmpt_classes +1;
-				
+					if(!empty($all_miniannonce)){
+							$allAnnonce[$cmpt_bcaptions]->setMiniAnnonce($all_miniannonce);
+					}
+					$cmpt_bcaptions = $cmpt_bcaptions + 1;
+					$all_miniannonce= Array();
+					$all_lienannonce= Array();
+				}elseif($class_lienannonces[$cmpt_classes] === 'b_vlist2col b_deep'){
+					$annonces =  $crawler->filter('.sb_add.sb_adTA > .b_vlist2col.b_deep');
+					$miniannonces = $annonces->eq($cmpt_bcaptions)->filter('li');
+					$cmpt_miniannonces = 0;
+						while ($cmpt_miniannonces < count($miniannonces)) {
+							$miniannonce_title= $miniannonces->eq($cmpt_miniannonces)->filter('h3')->extract(array('_text'));
+							if (count($miniannonce_title) == 1) {
+								$miniannonce_desc= $miniannonces->eq($cmpt_miniannonces)->filter('div')->extract(array('_text'));
+								$new_mini_annonce = New MiniAnnonce();
+								$desc ='';
+								foreach ($miniannonce_desc as $value) {
+									$desc .= $value.' ';
+								}
+								$link = $miniannonces->eq($cmpt_miniannonces)->filter('a')->extract(array('href'));
+								$new_mini_annonce->setTitle($miniannonce_title[0]);
+								$new_mini_annonce->setLink($link[0]);
+								$new_mini_annonce->setDesc($desc);
+								$all_miniannonce[] = $new_mini_annonce;
+							} else {
+								$lienannonce= $miniannonces->eq($cmpt_miniannonces)->filter('a')->extract(array('_text'));
+								$links= $miniannonces->eq($cmpt_miniannonces)->filter('a')->extract(array('href'));
+								$cmpt = 0;
+								foreach ($lienannonce as $value) {
+									$new_lienannonce = new LienAnnonce();
+									$new_lienannonce->setLink($links[$cmpt]);
+									$new_lienannonce->setTitle($value);
+									$all_lienannonce[] = $new_lienannonce;
+									$cmpt = $cmpt + 1;
+								}
+							}
+						$cmpt_miniannonces = $cmpt_miniannonces +1;
+						}
+					}
+					$cmpt_classes = $cmpt_classes +1;
+			}		
+			}
+			return $allAnnonce;
+		
 		}
-		return $allAnnonce;
-	
-	}
-	}
+		}

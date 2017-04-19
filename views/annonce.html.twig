@@ -9,6 +9,8 @@
     
          <div class="container-fluid">
     <h3>Titre de l'annonce :  {{annonce.Title}}</h2>
+        <p>Date : {{annonce.Date}}</p>
+        <p>Navigateur : {{annonce.Nav}}</p>
         <p>Lien : <a href="http://{{annonce.Link}}">{{annonce.Link}}</a></p>
         <p>Description : {{annonce.Desc}}</p>
     {% if annonce.Score is not null %}    
