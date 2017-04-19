@@ -97,9 +97,9 @@ $app->get('/scrapper/{keyword}', function ($keyword) use ($app) {
     
     $scrapper = New Scrapper($keyword);
     //On initialise l'url
-    $scrapper->setUrl();
+    $scrapper->setUrlBing();
     //On scrappe et on initiliase un objet Annonce
-    $annonces = $scrapper->parseKeyword();
+    $annonces = $scrapper->parseKeywordBing();
    //Enregistrement de chaque annonce
     foreach ($annonces as $value) {
         $app['dao.annonce']->save($value);

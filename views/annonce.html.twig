@@ -28,7 +28,11 @@
         {% for mini in annonce.MiniAnnonce %}
         <div class="col-sm-3">
             <p> {{mini.Title}} </p>
-            <a href="{{mini.Link}}">{{mini.Link}}</a>
+            {% if mini.Link|length < 30 %}
+                <a href="{{mini.Link}}">{{mini.Link}}</a>
+            {% else %}
+                <a href="{{mini.Link}}">Lien de l'annonce</a> (non affiché car le lien fait plus de 30 caractères)
+            {% endif %}
             <p> {{mini.Desc}} </p>
         </div>
         {% endfor %}
@@ -40,7 +44,11 @@
     <h4> Lien Annonces </h4>
     {% for lien in annonce.LienAnnonce %}
         <p> {{lien.Title}} </p>
-        <a href="{{lien.Link}}">{{lien.Link}}</a>
+        {% if lien.Link|length < 30 %}
+            <a href="{{lien.Link}}">{{lien.Link}}</a>
+        {% else %}
+            <a href="{{lien.Link}}">Lien de l'annonce</a> (non affiché car le lien fait plus de 30 caractères)
+        {% endif %}
     {% endfor %}
     {% endif %}
     
