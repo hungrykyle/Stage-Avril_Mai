@@ -19,4 +19,5 @@ ann_date DATE not null
 
 
 insert into annonce values
-(1,1,1, 'Jouez davantage sur PS Plus - Obtenez 2 jeux PS4 chaque mois','www.playstation.com/PlayStation_+','En tant qu abonné PS Plus, enrichissez chaque mois votre collection de jeux','Opera','2002-06-12');
+(1,1,1, 'Jouez davantage sur PS Plus - Obtenez 2 jeux PS4 chaque mois','www.playstation.com/PlayStation_+',
+'En tant qu abonné PS Plus, enrichissez chaque mois votre collection de jeux','Opera','2002-06-12');

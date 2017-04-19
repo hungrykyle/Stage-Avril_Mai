@@ -1,0 +1,31 @@
+{% extends "layout.html.twig" %}
+
+
+{% block title %}Archives{% endblock %}
+
+
+{% block content %}
+       <div class="starter-template">
+      <h1>Retrouver des anciennes annonces</h1>
+        <p class="lead"> <p>Trouver les annonces correspondant à un mot et à une date</p>
+         <div class="form-group">
+        {{ form_start(form,{ 'attr':  {
+            'class': 'form-inline',}}) }}
+           {{ form_errors(form.keywords) }}
+            {{ form_widget(form.keywords, { 'attr':  {
+              'rows': '4',
+            'class': 'form-control',
+            }}) }}
+            {{ form_widget(form.dueDate, { 'attr':  {
+              'rows': '4',
+            'class': 'form-control', 
+            'value' : '2017/04/19',
+            }}) }}
+        
+
+<input type="submit" class="btn btn-primary" value="Rechercher les annonces" />
+</div>
+</div>
+{{ form_end(form) }}
+
+{% endblock %}

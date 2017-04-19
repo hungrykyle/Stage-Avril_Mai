@@ -33,5 +33,20 @@ class ExtraDAO extends DAO
             $id = $this->getDb()->lastInsertId();
             $extra->setId($id);
     }
-    
+    public function idAnnonceExtra($id_ann) {
+        
+        $sql = 'select * from extra where extra_id_annonce ='.$id_ann.' order by extra_id desc ';
+
+        $result = $this->getDb()->fetchAll($sql);
+        $allExtra = array();
+        foreach ($result as $row) {
+            $extra = new Extra();
+            $extra->setId($row['extra_id']);
+            $extra->setIdAnnonce($row['extra_id_annonce']);
+            $extra->setText($row['extra_text']);
+            $allExtra[] = $extra;
+        }
+     
+        return $allExtra;
+    }
 }

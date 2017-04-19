@@ -33,5 +33,23 @@ class LienAnnonceDAO extends DAO
             $id = $this->getDb()->lastInsertId();
             $lienAnnonce->setId($id);
     }
+
+    public function idAnnonceLien($id_ann) {
+        
+        $sql = 'select * from lien_annonce where lien_id_annonce ='.$id_ann.' order by lien_id desc ';
+
+        $result = $this->getDb()->fetchAll($sql);
+        $allLienAnnonce = array();
+        foreach ($result as $row) {
+            $lienAnnonce = new LienAnnonce();
+            $lienAnnonce->setId($row['lien_id']);
+            $lienAnnonce->setIdAnnonce($row['lien_id_annonce']);
+            $lienAnnonce->setTitle($row['lien_title']);
+            $lienAnnonce->setLink($row['lien_link']);
+            $allLienAnnonce[] = $lienAnnonce;
+        }
+     
+        return $allLienAnnonce;
+    }
     
 }

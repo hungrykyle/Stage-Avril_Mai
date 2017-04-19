@@ -34,5 +34,25 @@ class MiniAnnonceDAO extends DAO
             $id = $this->getDb()->lastInsertId();
             $miniAnnonce->setId($id);
     }
-    
+    public function idAnnonceMini($id_ann) {
+        
+        $sql = 'select * from mini_annonce where mini_id_annonce ='.$id_ann.' order by mini_id desc ';
+
+        $result = $this->getDb()->fetchAll($sql);
+        $allMiniAnnonce = array();
+        foreach ($result as $row) {
+            $miniAnnonce = new MiniAnnonce();
+            $miniAnnonce->setId($row['mini_id']);
+            $miniAnnonce->setIdAnnonce($row['mini_id_annonce']);
+            $miniAnnonce->setTitle($row['mini_title']);
+            $miniAnnonce->setLink($row['mini_link']);
+            $miniAnnonce->setDesc($row['mini_desc']);
+            $allMiniAnnonce[] = $miniAnnonce;
+        }
+     
+        return $allMiniAnnonce;
+    }
 }
+
+
+

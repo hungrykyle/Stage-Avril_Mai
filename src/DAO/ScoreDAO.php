@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__.'/../DAO/DAO.php';
+require_once __DIR__.'/../Domain/Score.php';
 
 class ScoreDAO extends DAO 
 {
@@ -31,5 +32,19 @@ class ScoreDAO extends DAO
             $id = $this->getDb()->lastInsertId();
             $score->setId($id);
     }
+     public function idAnnonceScore($id_ann) {
+        
+        $sql = 'select * from score where score_id_annonce ='.$id_ann.' order by score_id desc ';
+
+        $result = $this->getDb()->fetchAll($sql);
+         
+        $score = new Score();
+        foreach ($result as $row) {
+            $score->setId($row['score_id']);
+            $score->setIdAnnonce($row['score_id_annonce']);
+            $score->setScore($row['score_note']);
+        }
+        return $score;
+        }
     
 }

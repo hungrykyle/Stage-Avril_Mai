@@ -163,3 +163,52 @@ $app->get('/scrapper/{id}/{nav}', function ($id,$nav) use ($app) {
 
 
 });
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+$app->match('/archives', function (Request $request) use ($app) {
+    $keywords = $app['dao.keyword']->allKeyword();
+    foreach ($keywords as $key => $value) {
+        $new[$value->getKeyword()] = $value; 
+    }
+    $formBuilder = $app['form.factory']->createBuilder(FormType::class);
+    $formBuilder->add('keywords', ChoiceType::class, array(
+        'multiple' => false,
+        'choices'  => array( 'Mot clé' => $new),
+        ));
+    $formBuilder->add('dueDate', TextType::class);
+    $form = $formBuilder->getForm();
+    $form->handleRequest($request);
+    if ($form->isSubmitted() && $form->isValid()) {
+        $data = $form->getData();
+        $word = current($data);
+        next($data);
+        $date = current($data);
+        $annonces = $app['dao.annonce']->allAnnonceByDate($word->getId(), $date);
+        foreach ($annonces as $key => $annonce) {
+            $allExtra = $app['dao.extra']->idAnnonceExtra($annonce->getId());
+            if (!empty($allExtra)){
+                foreach ($allExtra as $value) {
+                    $annonce->setExtra($value);
+                }
+            }
+            $liens = $app['dao.lienannonce']->idAnnonceLien($annonce->getId());
+            if (!empty($liens)){
+                $annonce->setLienAnnonce($liens);
+            }
+            $minis = $app['dao.miniannonce']->idAnnonceMini($annonce->getId());
+            if (!empty($minis)){
+                $annonce->setMiniAnnonce($minis);
+            }
+            $score = $app['dao.score']->idAnnonceScore($annonce->getId());
+            if (!empty($score)){
+                $annonce->setScore($score);
+            }
+        }
+        
+
+
+
+        return $app['twig']->render('annonce.html.twig', array('annonces' => $annonces));
+    }
+    // display the form
+    return $app['twig']->render('archives.html.twig', array('form' => $form->createView()));
+});
