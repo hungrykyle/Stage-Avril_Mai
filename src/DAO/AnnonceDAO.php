@@ -63,7 +63,7 @@ class AnnonceDAO extends DAO
         return $annonces;
     }
      public function allAnnonceByDate($id_word,$date) {
-        $sql = 'select * from annonce where user_id =2 AND ann_date > '.$date.' AND keyword_id='.$id_word.' order by ann_id desc';
+        $sql = 'select * from annonce where user_id =2 AND ann_date = \''.$date.'\'  AND keyword_id='.$id_word.' order by ann_id desc';
 
         $result = $this->getDb()->fetchAll($sql);
         $annonces =array();

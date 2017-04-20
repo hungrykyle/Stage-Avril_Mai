@@ -16,11 +16,9 @@
     {% if annonce.Score is not null %}    
         <p>Score : {{annonce.Score.Score}}</p>
     {% endif %}
-    {% for extra in annonce.Extra %}
-        <p> Informations supplémentaires : {{extra.Text}} </p>
-       
-    {% endfor %}   
-    
+    {% if annonce.Extra is not null %}
+        <p> Informations supplémentaires : {{annonce.StringExtra}} </p>
+    {% endif %}
     
     
     {% if annonce.MiniAnnonce is not null %}
@@ -28,7 +26,7 @@
         <hr>
         <h4> Mini Annonces </h4>
         {% for mini in annonce.MiniAnnonce %}
-        <div class="col-sm-3">
+        <div class="col-sm-{{annonce.CountMiniAnnonce}}">
             <p> {{mini.Title}} </p>
             {% if mini.Link|length < 30 %}
                 <a href="{{mini.Link}}">{{mini.Link}}</a>

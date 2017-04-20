@@ -73,10 +73,12 @@ function CorpsAnnonce(Annonce $annonce)
     // Times 12
     $this->SetFont('Times','',12);
     // Sortie du texte justifié
-    $this->Ln();
-    $this->MultiCell(0,5,utf8_decode($link));
-    $this->Ln();
     $this->MultiCell(0,5,utf8_decode('Date de l\'annonce : '.$date.' - Navigateur où a été trouvé l\'annonce : '.$nav));
+    $this->Ln();
+    $this->SetFont('Times','I');
+    $this->Write(5,$link,$link);
+    $this->Ln();
+    $this->SetFont('Times','',12);
     $this->Ln();
     $this->MultiCell(0,5,utf8_decode($desc));
     if (isset($annonce->getScore)){
@@ -85,34 +87,43 @@ function CorpsAnnonce(Annonce $annonce)
     }
     $extra = $annonce->getExtra();
      if (!empty($extra)){
+         $this->Ln();
+         $all_extra = '';
          foreach ($extra as $key => $value) {
-             $this->Ln();
-             $this->MultiCell(0,5,utf8_decode('Informations supplémentaires : '.$value->getText()));
+             $all_extra .= $value->getText().' ';
+             
+           
          }
-        
+          $this->MultiCell(0,5,utf8_decode('Informations supplémentaires : '.$all_extra));
+    }
+    $miniannonce = $annonce->getMiniAnnonce();
+     if (!empty($miniannonce)){
+         $this->Ln();
+         foreach ($miniannonce as $key => $value) {
+             $this->MultiCell(0,5,utf8_decode('Titre :  '.$value->getTitle()));
+             if (strlen($value->getLink()) > 30) {
+                 $this->Write(5,'Lien de cette mini annonce',$value->getLink());
+                 $this->Ln();
+             } else {
+                 $this->Write(5,$value->getLink(),$value->getLink());
+                 $this->Ln();
+             }
+             
+             
+             $this->MultiCell(0,5,utf8_decode('Description : '.$value->getDesc()));
+        }
+    }
+    $lienannonce = $annonce->getLienAnnonce();
+     if (!empty($lienannonce)){
+         $this->Ln();
+         foreach ($miniannonce as $key => $value) {
+             $this->MultiCell(0,5,utf8_decode('Titre : '.$value->getTitle()));
+             $this->MultiCell(0,5,utf8_decode('Lien : '.$value->getLink()));
+
+        }
     }
     
 }
-
-function MiniAnnonce(Annonce $annonce)
-{
-    // Lecture du fichier texte
-    
-    $link = $annonce->getLink();
-    $desc = $annonce->getDesc();
-    $score = $annonce->getScore();
-    // Times 12
-    $this->SetFont('Times','',12);
-    // Sortie du texte justifié
-    $this->Ln();
-    $this->MultiCell(0,5,utf8_decode($link));
-    $this->Ln();
-    $this->MultiCell(0,5,utf8_decode($desc));
-     $this->Ln();
-    $this->MultiCell(0,5,utf8_decode($score));
-    
-}
-
 function AjouterAnnonce(Annonce $annonce)
 {
     

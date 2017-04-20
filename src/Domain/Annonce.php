@@ -16,6 +16,7 @@
 		private $score;
 		private $nav;
 		private $date;
+		private $all_extra;
 
 
         public function __construct() {
@@ -88,12 +89,22 @@
 		public function getMiniAnnonce() {
 			return $this->mini_annonce;
 		}
+		public function getCountMiniAnnonce() {
+			return (12/count($this->mini_annonce));
+		}
 		public function setMiniAnnonce($mini_annonce) {
 			$this->mini_annonce = $mini_annonce;
 			return $this;
 		}
 		public function getExtra() {
 			return $this->extra;
+		}
+		public function getStringExtra() {
+			$all_extra='';
+			foreach ($this->extra as $key => $value) {
+				$all_extra .= $value->getText().' ';
+			}
+			return $all_extra;
 		}
 		public function setExtra($extra) {
 			$temp = $this->extra;
