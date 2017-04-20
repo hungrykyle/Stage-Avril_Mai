@@ -212,3 +212,39 @@ $app->match('/archives', function (Request $request) use ($app) {
     // display the form
     return $app['twig']->render('archives.html.twig', array('form' => $form->createView()));
 });
+
+$app->get('/pdf/{id}', function ($id) use ($app) {
+    require_once __DIR__.'/../src/Pdf/PDF.php';
+        $keyword = $app['dao.keyword']->idKeyword($id);
+        $annonces = $app['dao.annonce']->allAnnonce($id);
+        foreach ($annonces as $key => $annonce) {
+            $allExtra = $app['dao.extra']->idAnnonceExtra($annonce->getId());
+            if (!empty($allExtra)){
+                foreach ($allExtra as $value) {
+                    $annonce->setExtra($value);
+                }
+            }
+            $liens = $app['dao.lienannonce']->idAnnonceLien($annonce->getId());
+            if (!empty($liens)){
+                $annonce->setLienAnnonce($liens);
+            }
+            $minis = $app['dao.miniannonce']->idAnnonceMini($annonce->getId());
+            if (!empty($minis)){
+                $annonce->setMiniAnnonce($minis);
+            }
+            $score = $app['dao.score']->idAnnonceScore($annonce->getId());
+            if (!empty($score)){
+                $annonce->setScore($score);
+            }
+        }
+        $pdf = new PDF();
+        $titre = utf8_decode('Rapport d\'activité');
+        $pdf->SetTitle($titre);
+        $pdf->SetAuthor('Okki');
+        $pdf->AddPage();
+        $pdf->InfoAnnonce($keyword);
+        foreach ($annonces as $value) {
+            $pdf->AjouterAnnonce($value);
+        }
+        $pdf->Output();
+});
