@@ -8,7 +8,7 @@ function Header()
     global $titre;
     $titre = utf8_decode('Rapport d\'activité');
     // Logo
-    $this->Image('img/logo-okki.png',10,6,30,0,'','http://www.okki.fr');
+    //$this->Image('img/logo-okki.png',10,6,30,0,'','http://www.okki.fr');
     // Arial gras 15
     $this->SetFont('Arial','B',15);
     // Calcul de la largeur du titre et positionnement
@@ -69,11 +69,11 @@ function CorpsAnnonce(Annonce $annonce)
     $desc = $annonce->getDesc();
     $score = $annonce->getScore();
     $date = $annonce->getDate();
-    $nav = $annonce->getNav();
+    $research = $annonce->getResearch();
     // Times 12
     $this->SetFont('Times','',12);
     // Sortie du texte justifié
-    $this->MultiCell(0,5,utf8_decode('Date de l\'annonce : '.$date.' - Navigateur où a été trouvé l\'annonce : '.$nav));
+    $this->MultiCell(0,5,utf8_decode('Date de l\'annonce : '.$date.' - Moteur de recherche où a été trouvé l\'annonce : '.$research));
     $this->Ln();
     $this->SetFont('Times','I');
     $this->Write(5,$link,$link);
@@ -98,7 +98,9 @@ function CorpsAnnonce(Annonce $annonce)
     }
     $miniannonce = $annonce->getMiniAnnonce();
      if (!empty($miniannonce)){
-         $this->Ln();
+         $this->Ln(5);
+         $this->Cell(20,10,'Minis annonce sous l\'annonce :',0,1);
+         $this->Ln(5);
          foreach ($miniannonce as $key => $value) {
              $this->MultiCell(0,5,utf8_decode('Titre :  '.$value->getTitle()));
              if (strlen($value->getLink()) > 30) {
@@ -115,8 +117,10 @@ function CorpsAnnonce(Annonce $annonce)
     }
     $lienannonce = $annonce->getLienAnnonce();
      if (!empty($lienannonce)){
-         $this->Ln();
-         foreach ($miniannonce as $key => $value) {
+         $this->Ln(5);
+         $this->Cell(20,10,'Liens sous l\'annonce :',0,1);
+         $this->Ln(5);
+         foreach ($lienannonce as $key => $value) {
              $this->MultiCell(0,5,utf8_decode('Titre : '.$value->getTitle()));
              $this->MultiCell(0,5,utf8_decode('Lien : '.$value->getLink()));
 

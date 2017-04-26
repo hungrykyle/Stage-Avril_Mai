@@ -76,7 +76,7 @@
 					}
 					$annonce = New Annonce();
 					$annonce->setDate(date("Y/n/j"));
-					$annonce->setNav("Google");
+					$annonce->setResearch("Google");
 					$annonce->setTitle($text[$cmpt]);
                 }
 				//Lien
@@ -177,7 +177,7 @@
 			$annonce->setLink("Aucune lien");	
 			$annonce->setDesc("Aucune description");
 			$annonce->setDate(date("Y/n/j"));
-			$annonce->setNav("Google");
+			$annonce->setResearch("Google");
 			$allAnnonce[] = $annonce;
 			
 		}
@@ -197,25 +197,31 @@
 		//Récupération de tous les classes qui concerne les balises des annonces
 		$class = $crawler->filter('.sb_add.sb_adTA > .b_caption > *')->extract(array('class'));
 		$max = $crawler->filter('.sb_add.sb_adTA > .b_caption')->extract(array('class'));
+		//Si aucune annonce n'est trouvé'
 		if (empty($text)){
 			$annonce = new Annonce();
 			$annonce->setTitle("Aucune annonce");
 			$annonce->setLink("Aucune lien");	
 			$annonce->setDesc("Aucune description");
 			$annonce->setDate(date("Y/n/j"));
-			$annonce->setNav("Bing");
+			$annonce->setResearch("Bing");
 			$allAnnonce[] = $annonce;
 		}else{
 			$elements = count($text);
 			$nbr_annonces = count($max);
 			$cmpt = 0;
 			$allAnnonce = array();
+			//Création d'une instance Annonce pour chaque annonce trouvée
 			while ($cmpt < $nbr_annonces) {
 				$annonce = New Annonce();
+				//Initialisation de la date
 				$annonce->setDate(date("Y/n/j"));
-				$annonce->setNav("Bing");
+				//Initialisation du moteur de recherche
+				$annonce->setResearch("Bing");
+				//Initialisation du titre
 				$titles = $crawler->filter('.sb_add.sb_adTA > h2 > a')->extract(array('_text'));
 				$annonce->setTitle($titles[$cmpt]);
+				//Initialisation du lien
 				$links = $crawler->filter('.sb_add.sb_adTA > div > div > cite')->extract(array('_text'));
 				$annonce->setLink($links[$cmpt]);
 				$allAnnonce[] = $annonce;
@@ -227,9 +233,11 @@
 				if ($class[$cmpt_elements] === 'b_attribution') { 	
 					$cmpt_annonces = $cmpt_annonces+1;
 				}
+				//Initialisation de la description
 				elseif($class[$cmpt_elements] === ''){
 					$allAnnonce[$cmpt_annonces]->setDesc($text[$cmpt_elements]);
 				}
+				//Initialisation des instances de Extra
 				elseif ($class[$cmpt_elements] === 'b_secondaryText') {
 					$new_extra = New Extra();
 					$new_extra->setText($text[$cmpt_elements]);
@@ -237,11 +245,13 @@
 				}
 				$cmpt_elements = $cmpt_elements +1;
 			}
+			//Recherche des LienAnnonce/MiniAnnonce associé aux annonces
 			$class_lienannonces = $crawler->filter('.sb_add.sb_adTA > *')->extract(array('class'));
 			$classes = count($class_lienannonces);
 			$cmpt_classes = 0;
 			$cmpt_bcaptions = -1;
 			while ($cmpt_classes < $classes) {
+				//Si la classe où se trouve le pointeur dans le tableau est 'b_caption', on a trouvé une nouvelle annonce
 				if ($class_lienannonces[$cmpt_classes] === 'b_caption') {
 					if(!empty($all_lienannonce)){
 							$allAnnonce[$cmpt_bcaptions]->setLienAnnonce($all_lienannonce);
@@ -252,11 +262,14 @@
 					$cmpt_bcaptions = $cmpt_bcaptions + 1;
 					$all_miniannonce= Array();
 					$all_lienannonce= Array();
+				//Si la classe où se trouve le pointeur dans le tableau est 'b_vlist2col b_deep'
+				//Il y a soit des MiniAnnonce ou des LienAnnonce
 				}elseif($class_lienannonces[$cmpt_classes] === 'b_vlist2col b_deep'){
 					$annonces =  $crawler->filter('.sb_add.sb_adTA > .b_vlist2col.b_deep');
 					$miniannonces = $annonces->eq($cmpt_bcaptions)->filter('li');
 					$cmpt_miniannonces = 0;
 						while ($cmpt_miniannonces < count($miniannonces)) {
+							//Si on trouve un titre c'est une mini annonce
 							$miniannonce_title= $miniannonces->eq($cmpt_miniannonces)->filter('h3')->extract(array('_text'));
 							if (count($miniannonce_title) == 1) {
 								$miniannonce_desc= $miniannonces->eq($cmpt_miniannonces)->filter('div')->extract(array('_text'));
@@ -270,6 +283,7 @@
 								$new_mini_annonce->setLink($link[0]);
 								$new_mini_annonce->setDesc($desc);
 								$all_miniannonce[] = $new_mini_annonce;
+							//Sinon c'est un LienAnnonce'
 							} else {
 								$lienannonce= $miniannonces->eq($cmpt_miniannonces)->filter('a')->extract(array('_text'));
 								$links= $miniannonces->eq($cmpt_miniannonces)->filter('a')->extract(array('href'));
@@ -286,6 +300,12 @@
 						}
 					}
 					$cmpt_classes = $cmpt_classes +1;
+			}
+			if(!empty($all_lienannonce)){
+							$allAnnonce[$cmpt_bcaptions]->setLienAnnonce($all_lienannonce);
+			}
+			if(!empty($all_miniannonce)){
+							$allAnnonce[$cmpt_bcaptions]->setMiniAnnonce($all_miniannonce);
 			}		
 			}
 			return $allAnnonce;

@@ -18,6 +18,7 @@
 			$this->title = $title;
 			return $this;
 		}
+		//Lien
 		public function getLink() {
 			return $this->link;
 		}
@@ -25,6 +26,7 @@
 			$this->link = $link;
 			return $this;
 		}
+		// Id
 		public function getId() {
 			return $this->id;
 		}
@@ -32,6 +34,7 @@
 			$this->id = $id;
 			return $this;
 		}
+		// Id de l'annonce
 		public function getIdAnnonce() {
 			return $this->id_annonce;
 		}

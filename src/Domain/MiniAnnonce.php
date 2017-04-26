@@ -15,6 +15,7 @@
 			$this->title = $title;
 			return $this;
 		}
+		//Lien
 		public function getLink() {
 			return $this->link;
 		}
@@ -22,7 +23,7 @@
 			$this->link = $link;
 			return $this;
 		}
-		//Description de l'annonce
+		//Description 
 		public function getDesc() {
 			return $this->desc;
 		}
@@ -30,6 +31,7 @@
 			$this->desc = $desc;
 			return $this;
 		}
+		//Id de l'annonce associée
 		public function getIdAnnonce() {
 			return $this->id_annonce;
 		}
@@ -37,6 +39,7 @@
 		$this->id_annonce = $id_annonce;
 			return $this;
 		}
+		//Id de la mini annonce
 		public function getId() {
 			return $this->id;
 		}

@@ -17,9 +17,10 @@
             'class': 'form-control',
             }}) }}
             {{ form_widget(form.dueDate, { 'attr':  {
-              'rows': '4',
-            'class': 'form-control', 
-            'value' : 'AAAA/MM/JJ',
+            'widget' : 'single_text',
+            'class': 'form-control input-inline datepicker', 
+            'data-provide' : 'datepicker',
+            'data-date-format' : 'yyyy-mm-dd'
             }}) }}
         
 

@@ -4,19 +4,25 @@
 {% block title %}MotClé{% endblock %}
 
 {% block content %}
-{% for annonce in annonces %}
-    
-    
-         <div class="container-fluid">
+<h1>
+<ul class="nav nav-pills">
+  <li class="active"><a data-toggle="pill" href="#google">Google</a></li>
+  <li><a data-toggle="pill" href="#bing">Bing</a></li>
+</ul>
+</h1>
+<div class="tab-content">
+  <div id="google" class="tab-pane fade in active">
+  {% for annonce in annonces_google %}
+    <div class="container-fluid">
     <h3>Titre de l'annonce :  {{annonce.Title}}</h2>
         <p>Date : {{annonce.Date}}</p>
-        <p>Navigateur : {{annonce.Nav}}</p>
-        <p>Lien : <a href="http://{{annonce.Link}}">{{annonce.Link}}</a></p>
+        <p>Moteur de recherche : {{annonce.Research}}</p>
+        <p>Lien : <a id="link" href="http://{{annonce.Link}}">{{annonce.Link}}</a></p>
         <p>Description : {{annonce.Desc}}</p>
     {% if annonce.Score is not null %}    
         <p>Score : {{annonce.Score.Score}}</p>
     {% endif %}
-    {% if annonce.Extra is not null %}
+    {% if annonce.StringExtra is not empty %}
         <p> Informations supplémentaires : {{annonce.StringExtra}} </p>
     {% endif %}
     
@@ -27,12 +33,7 @@
         <h4> Mini Annonces </h4>
         {% for mini in annonce.MiniAnnonce %}
         <div class="col-sm-{{annonce.CountMiniAnnonce}}">
-            <p> {{mini.Title}} </p>
-            {% if mini.Link|length < 30 %}
-                <a href="{{mini.Link}}">{{mini.Link}}</a>
-            {% else %}
-                <a href="{{mini.Link}}">Lien de l'annonce</a> (non affiché car le lien fait plus de 30 caractères)
-            {% endif %}
+            <p><a href="{{mini.Link}}">{{mini.Title}}</a></p>
             <p> {{mini.Desc}} </p>
         </div>
         {% endfor %}
@@ -43,16 +44,52 @@
     <hr>
     <h4> Lien Annonces </h4>
     {% for lien in annonce.LienAnnonce %}
-        <p> {{lien.Title}} </p>
-        {% if lien.Link|length < 30 %}
-            <a href="{{lien.Link}}">{{lien.Link}}</a>
-        {% else %}
-            <a href="{{lien.Link}}">Lien de l'annonce</a> (non affiché car le lien fait plus de 30 caractères)
-        {% endif %}
+        <p><a href="{{lien.Link}}">{{lien.Title}}</a></p>
     {% endfor %}
     {% endif %}
     
     </div>
-{% endfor %}
+    {% endfor %}
+  </div>
+  <div id="bing" class="tab-pane fade">
+    {% for annonce in annonces_bing %}
+    <div class="container-fluid">
+    <h3>Titre de l'annonce :  {{annonce.Title}}</h2>
+        <p>Date : {{annonce.Date}}</p>
+        <p>Moteur de recherche : {{annonce.Research}}</p>
+        <p>Lien : <a href="http://{{annonce.Link}}">{{annonce.Link}}</a></p>
+        <p>Description : {{annonce.Desc}}</p>
+    {% if annonce.Score is not null %}    
+        <p>Score : {{annonce.Score.Score}}</p>
+    {% endif %}
+    {% if annonce.StringExtra is not empty %}
+        <p> Informations supplémentaires : {{annonce.StringExtra}} </p>
+    {% endif %}
+    
+    
+    {% if annonce.MiniAnnonce is not null %}
+        <div class="row">
+        <hr>
+        <h4> Mini Annonces </h4>
+        {% for mini in annonce.MiniAnnonce %}
+        <div class="col-sm-{{annonce.CountMiniAnnonce}}">
+            <p><a href="{{mini.Link}}">{{mini.Title}}</a></p>
+            <p> {{mini.Desc}} </p>
+        </div>
+        {% endfor %}
+        </div>
+    {% endif %}
 
+    {% if annonce.LienAnnonce is not null %}
+    <hr>
+    <h4> Lien Annonces </h4>
+    {% for lien in annonce.LienAnnonce %}
+        <p><a id='link' href="{{lien.Link}}">{{lien.Title}}</a></p>
+    {% endfor %}
+    {% endif %}
+    
+    </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

@@ -14,7 +14,7 @@
 		private $mini_annonce;
 		private $extra;
 		private $score;
-		private $nav;
+		private $research;
 		private $date;
 		private $all_extra;
 
@@ -30,7 +30,7 @@
 		$this->mini_annonce = null;
 		$this->extra = Array();
 		$this->scoreid = null;
-		$this->nav = null;
+		$this->research = null;
 		$this->date = null;
 	}
 		
@@ -58,6 +58,7 @@
 			$this->desc .= $desc.' ';
 			return $this;
 		}
+		//Id de l'utilisateur à qui appartient l'annonce
 		public function getIdUser() {
 			return $this->user;
 		}
@@ -65,6 +66,7 @@
 			$this->user = $user;
 			return $this;
 		}
+		//Id de l'annonce'
 		public function getId() {
 			return $this->id;
 		}
@@ -72,6 +74,7 @@
 			$this->id = $id;
 			return $this;
 		}
+		//Id du mot clé associé à l'annonce'
 		public function getIdkeyword() {
 			return $this->idkey;
 		}
@@ -79,6 +82,7 @@
 			$this->idkey = $idkey;
 			return $this;
 		}
+		//Les liens de l'annonces associés
 		public function getLienAnnonce() {
 			return $this->lien_annonce;
 		}
@@ -86,9 +90,11 @@
 			$this->lien_annonce = $lien_annonce;
 			return $this;
 		}
+		//Les minis annonces associées
 		public function getMiniAnnonce() {
 			return $this->mini_annonce;
 		}
+		//Compte le nombre de Mini Annonce (pour l'affichage twig')
 		public function getCountMiniAnnonce() {
 			return (12/count($this->mini_annonce));
 		}
@@ -96,9 +102,11 @@
 			$this->mini_annonce = $mini_annonce;
 			return $this;
 		}
+		// Les instances de Extra associés
 		public function getExtra() {
 			return $this->extra;
 		}
+		// Crée une chaîne de caractère avec toutes les instances de Extra associés
 		public function getStringExtra() {
 			$all_extra='';
 			foreach ($this->extra as $key => $value) {
@@ -112,6 +120,7 @@
 			$this->extra = $temp;
 			return $this;
 		}
+		// Le score associé
 		public function getScore() {
 			return $this->score;
 		}
@@ -119,13 +128,15 @@
 			$this->score = $score;
 			return $this;
 		}
-		public function getNav() {
-			return $this->nav;
+		// Le moteur de recherche qui a trouvé l'annonce
+		public function getResearch() {
+			return $this->research;
 		}
-		public function setNav($nav) {
-			$this->nav = $nav;
+		public function setResearch($research) {
+			$this->research = $research;
 			return $this;
 		}
+		// La date associée à l'annonce
 		public function getDate() {
 			return $this->date;
 		}

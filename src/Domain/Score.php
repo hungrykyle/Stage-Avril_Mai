@@ -9,7 +9,7 @@
         private $score;
         
 
-		//Titre
+		//Score
 		public function getScore() {
 			return $this->score;
 		}
@@ -17,6 +17,7 @@
 			$this->score = $score;
 			return $this;
 		}
+		//Id
 		public function getId() {
 			return $this->id;
 		}
@@ -24,6 +25,7 @@
 			$this->id = $id;
 			return $this;
 		}
+		//Id de l'annonce
 		public function getIdAnnonce() {
 			return $this->id_annonce;
 		}

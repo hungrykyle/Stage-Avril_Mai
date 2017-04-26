@@ -9,7 +9,7 @@
         private $keyword;
         
 
-	
+		//Id
 		public function getId() {
 			return $this->id;
 		}
@@ -17,6 +17,7 @@
 			$this->id = $id;
 			return $this;
 		}
+		//Id de l'utilisateur qui possède le mot clé
 		public function getUserId() {
 			return $this->userid;
 		}
@@ -24,6 +25,7 @@
 			$this->userid = $userid;
 			return $this;
 		}
+		//Le mot clé
 		public function getKeyword() {
 			return $this->keyword;
 		}

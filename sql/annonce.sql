@@ -8,7 +8,7 @@ keyword_id integer(11) not null,
 ann_title varchar(100) not null,
 ann_link varchar(100) not null,
 ann_desc varchar(255) not null,
-ann_nav varchar(100) not null,
+ann_research varchar(100) not null,
 ann_date DATE not null
 ) engine=innodb character set utf8 collate utf8_unicode_ci;
 

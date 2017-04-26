@@ -1,10 +1,15 @@
 <?php
 
-
+use Silex\Application;
+use Silex\Provider\TwigServiceProvider;
+use Silex\Provider\UrlGeneratorServiceProvider;
+use Silex\Provider\ValidatorServiceProvider;
+use Silex\Provider\ServiceControllerServiceProvider;
+use Silex\Provider\TranslationServiceProvider;
+use Silex\Provider\SwiftmailerServiceProvider;
+use Silex\Provider\LocaleServiceProvider;
 use Symfony\Component\Debug\ErrorHandler;
-
 use Symfony\Component\Debug\ExceptionHandler;
-
 use Silex\Provider\FormServiceProvider;
 
 require_once __DIR__.'/../src/DAO/AnnonceDAO.php';
@@ -23,6 +28,18 @@ ExceptionHandler::register();
 
 
 // Register service providers.
+
+$app->register(new SwiftmailerServiceProvider());
+
+$app['swiftmailer.options'] = array(
+    'host'       => 'smtp.gmail.com',
+    'port'       => 465,
+    'username'   => 'mailokkitest@gmail.com',
+    'password'   => 'testokkimail',
+    'encryption' => 'ssl',
+    'auth_mode'  => 'login'
+);	
+$app['swiftmailer.use_spool'] = false;
 
 $app->register(new Silex\Provider\DoctrineServiceProvider());
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
@@ -77,3 +94,5 @@ $app['dao.keyword'] = function ($app) {
     return new KeywordDAO($app['db']);
 
 };
+
+

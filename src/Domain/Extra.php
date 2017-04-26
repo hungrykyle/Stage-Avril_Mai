@@ -9,7 +9,7 @@
         private $text;
         
 
-		//Titre
+		//Texte
 		public function getText() {
 			return $this->text;
 		}
@@ -17,6 +17,7 @@
 			$this->text = $text;
 			return $this;
 		}
+		//Id
 		public function getId() {
 			return $this->id;
 		}
@@ -24,6 +25,7 @@
 			$this->id = $id;
 			return $this;
 		}
+		//Id de l'annonce'
 		public function getIdAnnonce() {
 			return $this->id_annonce;
 		}
