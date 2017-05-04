@@ -12,19 +12,22 @@ class KeywordDAO extends DAO
     /**
      * @var 
      */
-    //private $userDAO;
+    private $userDAO;
     public function setKeywordDAO(KeywordDAO $keywordDAO) {
         $this->keywordDAO = $keywordDAO;
     }
-    //public function setUserDAO(UserDAO $userDAO) {
-      //  $this->userDAO = $userDAO;
-    //}
-    #Enregistrement d'une instance de Extra dans la base de données
+    public function setUserDAO(UserDAO $userDAO) {
+        $this->userDAO = $userDAO;
+    }
+    /**
+    * Enregistrement l'objet Keyword dans la base de donnée.
+    *
+    * @param Keyword $keyword.
+    */  
     public function save(Keyword $keyword) {
-        $keyword->setUserId(1);
         $keywordData = array(
             'keyword' => $keyword->getKeyword(),
-            'user_id' => $keyword->getUserId(),
+            'user_id' => $keyword->getUserId()->getId(),
             );
      
            // insert 
@@ -33,34 +36,41 @@ class KeywordDAO extends DAO
             $id = $this->getDb()->lastInsertId();
             $keyword->setId($id);
     }
-    #Modification d'un mot clé
+    /**
+    * Modifie un mot clé dans la base de donnée.
+    *
+    * @param Keyword $keyword.
+    */ 
     public function update(Keyword $keyword) {
-        $keyword->setUserId(1);
         $keywordData = array(
             'keyword' => $keyword->getKeyword(),
-            'user_id' => $keyword->getUserId(),
+            'user_id' => $keyword->getUserId()->getId(),
             );
      
            // update 
             $this->getDb()->update('keyword', $keywordData,array('keyword_id' => $keyword->getId()));
     }
-    #Suppression d'un mot clé
+    /**
+    * Supprime un mot clé dans la base de donnée.
+    *
+    * @param Keyword $keyword.
+    */ 
     public function delete(Keyword $keyword) {
-        $keyword->setUserId(1);
         $keywordData = array(
             'keyword' => $keyword->getKeyword(),
-            'user_id' => $keyword->getUserId(),
+            'user_id' => $keyword->getUserId()->getId(),
             );
-     
-           // delete 
+            // delete 
             $this->getDb()->delete('keyword', $keywordData,array('keyword_id' => $keyword->getId()));
-            
-            
     }
-    # Retournes tous les mots clés
-    public function allKeyword() {
+    /**
+    * Retourne tous les mots clés d'un utilisateur.
+    *
+    * @param User $user.
+    */ 
+    public function allKeywordByUser(User $user) {
         #Requête SQL
-        $sql = "select * from keyword where user_id =1 order by keyword_id desc ";
+        $sql = 'select * from keyword where user_id ='.$user->getId().' order by keyword_id desc';
         $result = $this->getDb()->fetchAll($sql);
         $keywords =array();
         foreach ($result as $row) {
@@ -73,7 +83,11 @@ class KeywordDAO extends DAO
         }
      return $keywords;
     }
-    # Retournes un mot clé par rapport à son Id
+    /**
+    * Retourne un mot clé en fonction de l'id.
+    *
+    * @param $id Id du mot clé demandé.
+    */ 
     public function idKeyword($id) {
         #Requête SQL
         $sql = 'select * from keyword where keyword_id ='.$id.' order by keyword_id desc ';
@@ -85,5 +99,13 @@ class KeywordDAO extends DAO
             $keyword->setKeyword($row['keyword']);
         }
         return $keyword;
+    }
+    /**
+    * Supprime tous les mots clés d'un utilisateur.
+    *
+    * @param integer $userId Id de l'utilisateur.
+    */
+    public function deleteAllByUser($userId) {
+        $this->getDb()->delete('keyword', array('user_id' => $userId));
     }
 }

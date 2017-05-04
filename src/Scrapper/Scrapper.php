@@ -97,17 +97,8 @@
 						$next_crawler = $client->request('GET', $next);
 						$links = $next_crawler->filter('* > a:first-child')->extract(array('_text'));
 						$link = $links[0];
-						$pos = explode("ds_dest_url=", $link);
-						if (isset($pos[1])) {
-							$pre_link = $pos[1];
-							$pos = explode("?sitelink", $pre_link);
-							$post_link = $pos[0];
-							$minilinks[] = $post_link;
-						}else{
-							$minilinks[] = $link;
-
-						}
-						
+						$autresite = $client->request('GET', $link);
+						$minilinks[] = $autresite->getUri();
 					}
 					$cmpt_links = 0;
 					$nodes = Array();
@@ -137,11 +128,8 @@
 						$next_crawler = $client->request('GET', $next);
 						$links = $next_crawler->filter('* > a:first-child')->extract(array('_text'));
 						$link = $links[0];
-						$pos = explode("ds_dest_url=", $link);
-						$pre_link = $pos[1];
-						$pos = explode("?sitelink", $pre_link);
-						$post_link = $pos[0];
-						$minilinks[] = $post_link;
+						$autresite = $client->request('GET', $link);
+						$minilinks[] = $autresite->getUri();
 					}
                     $nbr_title = count($title);
                     while ($cmpt_miniAnnonce < $nbr_title){
@@ -279,8 +267,9 @@
 									$desc .= $value.' ';
 								}
 								$link = $miniannonces->eq($cmpt_miniannonces)->filter('a')->extract(array('href'));
+								$autresite = $client->request('GET', $link[0]);
 								$new_mini_annonce->setTitle($miniannonce_title[0]);
-								$new_mini_annonce->setLink($link[0]);
+								$new_mini_annonce->setLink($autresite->getUri());
 								$new_mini_annonce->setDesc($desc);
 								$all_miniannonce[] = $new_mini_annonce;
 							//Sinon c'est un LienAnnonce'
@@ -290,7 +279,8 @@
 								$cmpt = 0;
 								foreach ($lienannonce as $value) {
 									$new_lienannonce = new LienAnnonce();
-									$new_lienannonce->setLink($links[$cmpt]);
+									$autresite = $client->request('GET', $links[$cmpt]);
+									$new_lienannonce->setLink($autresite->getUri());
 									$new_lienannonce->setTitle($value);
 									$all_lienannonce[] = $new_lienannonce;
 									$cmpt = $cmpt + 1;

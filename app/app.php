@@ -18,6 +18,8 @@ require_once __DIR__.'/../src/DAO/ScoreDAO.php';
 require_once __DIR__.'/../src/DAO/LienAnnonceDAO.php';
 require_once __DIR__.'/../src/DAO/MiniAnnonceDAO.php';
 require_once __DIR__.'/../src/DAO/ExtraDAO.php';
+require_once __DIR__.'/../src/DAO/RapportDAO.php';
+require_once __DIR__.'/../src/DAO/UserDAO.php';
 
 
 // Register global error and exception handlers
@@ -53,21 +55,22 @@ $app->register(new Silex\Provider\AssetServiceProvider(), array(
 ));
 $app->register(new FormServiceProvider());
 $app->register(new Silex\Provider\ValidatorServiceProvider());
-// Register services.
+
 
 $app->register(new Silex\Provider\LocaleServiceProvider());
 $app->register(new Silex\Provider\TranslationServiceProvider(), array(
     'locale_fallbacks' => array('fr'),
 ));
+
 $app['dao.annonce'] = function ($app) {
-
-    return new AnnonceDAO($app['db']);
-
+    $annonceDAO = new AnnonceDAO($app['db']);
+    $annonceDAO->setUserDAO($app['dao.user']);
+    return $annonceDAO;
 };
 $app['dao.keyword'] = function ($app) {
-
-    return new KeywordDAO($app['db']);
-
+    $keywordDAO = new KeywordDAO($app['db']);
+    $keywordDAO->setUserDAO($app['dao.user']);
+    return $keywordDAO;
 };
 $app['dao.lienannonce'] = function ($app) {
 
@@ -94,5 +97,33 @@ $app['dao.keyword'] = function ($app) {
     return new KeywordDAO($app['db']);
 
 };
+$app['dao.rapport'] = function ($app) {
 
+    return new RapportDAO($app['db']);
+};
+$app['dao.user'] = function ($app) {
 
+    return new UserDAO($app['db']);
+
+};
+
+$app->register(new Silex\Provider\SessionServiceProvider());
+
+$app->register(new Silex\Provider\SecurityServiceProvider(), array(
+
+    'security.firewalls' => array(
+        'login' => array(
+            'pattern' => '^/login$',
+        ),
+        
+        'secured' => array(
+            'pattern' => '^.*$',
+            'anonymous' => false,
+            'logout' => true,
+            'form' => array('login_path' => '/login', 'check_path' => '/login_check'),
+            'users' => function ($app) {
+                return new UserDAO($app['db']);
+            },
+        ),
+    ),
+));

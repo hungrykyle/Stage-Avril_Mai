@@ -8,7 +8,7 @@ function Header()
     global $titre;
     $titre = utf8_decode('Rapport d\'activité');
     // Logo
-    //$this->Image('img/logo-okki.png',10,6,30,0,'','http://www.okki.fr');
+    $this->Image('/srv/data/web/vhosts/www.okki-prod.fr/htdocs/projetStageMaxime2017/test/projet/web/img/logo-okki.png',10,6,30,0,'','http://www.okki.fr');
     // Arial gras 15
     $this->SetFont('Arial','B',15);
     // Calcul de la largeur du titre et positionnement
@@ -35,16 +35,16 @@ function Footer()
     // Numéro de page
     $this->Cell(0,10,'Page '.$this->PageNo(),0,0,'C');
 }
-function InfoAnnonce(Keyword $keyword){
-    $word = $keyword->getKeyword();
+function InfoRapport($keywords, $date, User $user){
+    $word = $keywords;
     // Arial 12
     $this->SetFont('Arial','',12);
     // Infos
     $this->Cell(0,6,utf8_decode('Mot clé : '.$word));
     $this->Ln();
-    $this->Cell(0,6,utf8_decode('Utilisateur : '));
+    $this->Cell(0,6,utf8_decode('Utilisateur : '.$user->getUsername()));
     $this->Ln();
-    $this->Cell(0,6,utf8_decode('Date : '));
+    $this->Cell(0,6,utf8_decode('Date :'.$date));
     // Saut de ligne
     $this->Ln(15);
 }
@@ -128,6 +128,15 @@ function CorpsAnnonce(Annonce $annonce)
     }
     
 }
+function AjouterAnnonceKeyword($keyword, $allAnnonce){
+    $this->Ln(5);
+    $this->Cell(20,10,utf8_decode('Mot clé :'.$keyword),0,1);
+    $this->Ln(5);
+    foreach ($allAnnonce as $annonce) {
+        $this->AjouterAnnonce($annonce);
+    }
+}
+
 function AjouterAnnonce(Annonce $annonce)
 {
     

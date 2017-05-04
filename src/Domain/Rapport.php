@@ -7,18 +7,13 @@
 		private $id;
         private $id_user;
         private $date;
-        private $keywords;
 		private $link_rapport;
-		
-		//Lien qui correspondra au lien de chaque pdf avant d'ajouter son nom pour l'enregistrer
-		private $link;
 		
 	 	public function __construct() {
 		$this->id = null;
 		$this->id_user = null;
 		$this->date = null;
-		$this->keywords = Array();
-		$this->link_rapport = $link;
+		$this->link_rapport = null;
 		}
 		//Id du rapport
 		public function getId() {
@@ -29,10 +24,10 @@
 			return $this;
 		}
 		//Id de l'utilisateur pour qui a été généré ce rapport'
-		public function getUserId() {
+		public function getIdUser() {
 			return $this->id_user;
 		}
-		public function setUserId($id_user) {
+		public function setIdUser($id_user) {
 			$this->id_user = $id_user;
 			return $this;
 		}
@@ -44,20 +39,12 @@
 			$this->date = $date;
 			return $this;
 		}
-		//Ensemble des mots clés qui ont été utilisé pour créer ce rapport
-		public function getKeywords() {
-			return $this->keywords;
-		}
-		public function addKeywords($keyword) {
-			$this->keywords[] = $keyword;
-			return $this;
-		}
 		//Lien où se trouve le pdf sur le serveur
 		public function getLinkRapport() {
 			return $this->link_rapport;
 		}
-		public function setLinkRapport($link) {
-			$this->link_rapport = $link;
+		public function setLinkRapport($link_rapport) {
+			$this->link_rapport = $link_rapport;
 			return $this;
 		}
 }

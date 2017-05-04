@@ -29,6 +29,7 @@
 		$this->lien_annonce = null;
 		$this->mini_annonce = null;
 		$this->extra = Array();
+		$this->allextra = '';
 		$this->scoreid = null;
 		$this->research = null;
 		$this->date = null;
@@ -112,7 +113,8 @@
 			foreach ($this->extra as $key => $value) {
 				$all_extra .= $value->getText().' ';
 			}
-			return $all_extra;
+			$this->all_extra = $all_extra;
+			return $this->all_extra;
 		}
 		public function setExtra($extra) {
 			$temp = $this->extra;
