@@ -8,19 +8,19 @@
        <div class="starter-template">
       <h1>Retrouver des anciennes annonces</h1>
         <p class="lead"> <p>Trouver les annonces correspondant à un mot et à une date</p>
+
          <div class="form-group">
         {{ form_start(form,{ 'attr':  {
             'class': 'form-inline',}}) }}
            {{ form_errors(form.keywords) }}
             {{ form_widget(form.keywords, { 'attr':  {
-              'rows': '4',
+            'rows': '4',
             'class': 'form-control',
             }}) }}
             {{ form_widget(form.dueDate, { 'attr':  {
-            'widget' : 'single_text',
-            'class': 'form-control input-inline datepicker', 
-            'data-provide' : 'datepicker',
-            'data-date-format' : 'yyyy-mm-dd'
+              'widget' : 'single_text',
+              'class': 'form-control datepicker',
+              'data-date-format' : 'YYYY-MM-DD'
             }}) }}
         
 
@@ -28,5 +28,10 @@
 </div>
 </div>
 {{ form_end(form) }}
-
+ <script type="text/javascript">
+            $('input.datepicker').each(function(){
+                var datepicker = $(this);
+                datepicker.bootstrapDatePicker(datepicker.data());
+            });
+</script>
 {% endblock %}

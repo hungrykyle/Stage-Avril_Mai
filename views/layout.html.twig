@@ -3,12 +3,17 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
- <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment-with-langs.min.js"></script>
     <link href="{{ asset('/lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('/lib/bootstrap/css/bootstrap-datepicker.css') }}" rel="stylesheet">
     <link href="{{ asset('/lib/dist/dist/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/style.css') }}" rel="stylesheet">
     <script src="{{ asset('/lib/bootstrap/js/jquery.js') }}"></script>
     <script src="{{ asset('/lib/bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('/lib/bootstrap/js/bootstrap-datepicker.js') }}"></script>
     <script src="{{ asset('/lib/dist/js/bootstrap-datepicker.min.js') }}"></script>
     
     <title>Outil de monitoring - {% block title %}{% endblock %}</title>
@@ -18,22 +23,44 @@
         <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                <a href="#" class="navbar-left"><img src="{{ asset('/img/logo-okki.png') }}" width="50px"></a>
+                <a href="http://www.okki-prod.fr/projetStageMaxime2017/test/projet/web/" class="navbar-left"><img src="{{ asset('/img/logo-okki.png') }}" width="50px"></a>
                 </div>
-                <a class="navbar-brand" href="">Interface de monitoring</a>
+                <a class="navbar-brand" href="http://www.okki-prod.fr/projetStageMaxime2017/test/projet/web/">Interface de monitoring</a>
                 <ul class="nav navbar-nav">
                 <li class="active"><a href="http://www.okki-prod.fr/projetStageMaxime2017/test/projet/web/">Home</a></li>
-                <li><a href="http://www.okki-prod.fr/projetStageMaxime2017/test/projet/web/index.php/keyword">Keyword</a></li>
-                 <li><a href="http://www.okki-prod.fr/projetStageMaxime2017/test/projet/web/index.php/scrapper">Scrapper</a></li>
-                 <li><a href="http://www.okki-prod.fr/projetStageMaxime2017/test/projet/web/index.php/archives">Archives</a></li>
-                </ul>
+                <li><a href="http://www.okki-prod.fr/projetStageMaxime2017/test/projet/web/keyword">Keyword</a></li>
+                 <li><a href="http://www.okki-prod.fr/projetStageMaxime2017/test/projet/web/scrapper">Scrapper</a></li>
+                 <li><a href="http://www.okki-prod.fr/projetStageMaxime2017/test/projet/web/archives">Archives</a></li>
+                 {% if app.user and is_granted('ROLE_ADMIN') %}
+                 <li class="{% if adminMenu is defined %}active{% endif %}"><a href="{{ path('admin') }}"><span class="glyphicon glyphicon-cog"></span> Administration</a></li>
+                 {% endif %}
+                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                   <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                   {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-user"></span> Bienvenue, {{ app.user.username }} <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ path('logout') }}">Se déconnecter</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-log-in"></span>Non connecté <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ path('login') }}">Se connecter</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
                 </ul>
                 <div class="collapse navbar-collapse" id="navbar-collapse-target">
                 </div>
                 </div>
             </nav>
+                
+
+               
             </div><!-- /.container -->
         
      
