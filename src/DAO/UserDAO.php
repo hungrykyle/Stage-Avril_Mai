@@ -34,6 +34,21 @@ class UserDAO extends DAO implements UserProviderInterface
     
     }
     /**
+    * Retourne tous les adminstrateurs.
+    */
+
+    public function findAllAdmin() {
+        $sql = "select * from user";
+        $result = $this->getDb()->fetchAll($sql);
+        #Tableau qui va contenir toutes les annonces
+        $users =array();
+        foreach ($result as $row) {
+            $users[] = $this->buildDomainObject($row);
+        }
+        return $users;
+    
+    }
+    /**
     * Retourne un utilisateur en fonction de son id
     *
     * @param  $id Id de l'utilisateur.
@@ -94,7 +109,9 @@ class UserDAO extends DAO implements UserProviderInterface
             'usr_salt' => $user->getSalt(),
             'usr_mail' => $user->getMail(),
             'usr_password' => $user->getPassword(),
-            'usr_role' => $user->getRole()
+            'usr_role' => $user->getRole(),
+            'usr_frequency' => $user->getFrequency(),
+            'usr_avatar' => $user->getAvatar()
             );
         if ($user->getId()) {
             // The user has already been saved : update it
@@ -130,6 +147,8 @@ class UserDAO extends DAO implements UserProviderInterface
         $user->setMail($row['usr_mail']);
         $user->setSalt($row['usr_salt']);
         $user->setRole($row['usr_role']);
+        $user->setFrequency($row['usr_frequency']);
+        $user->setAvatar($row['usr_avatar']);
             return $user;
         }
     }

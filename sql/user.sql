@@ -13,13 +13,17 @@ create table user (
 
     usr_salt varchar(23) not null,
 
+    usr_frequency varchar(23),
+
+    usr_avatar varchar(120),
+
     usr_role varchar(50) not null 
 
 ) engine=innodb character set utf8 collate utf8_unicode_ci;
 
 
 insert into user values
-(1,'HungryKyle_1', '$2y$13$qOvvtnceX.TjmiFn4c4vFe.hYlIVXHSPHfInEG21D99QZ6/LM70xa', 'Maxime1306@hotmail.fr', 'dhMTBkzwDKxnD;4KNs,4ENy','ROLE_USER'),
-(2,'HungryKyle_2', '$2y$13$qOvvtnceX.TjmiFn4c4vFe.hYlIVXHSPHfInEG21D99QZ6/LM70xa', 'Maxime1306@hotmail.fr', 'dhMTBkzwDKxnD;4KNs,4ENy','ROLE_USER'),
+(1,'HungryKyle_1', '$2y$13$qOvvtnceX.TjmiFn4c4vFe.hYlIVXHSPHfInEG21D99QZ6/LM70xa', 'Maxime1306@hotmail.fr', 'dhMTBkzwDKxnD;4KNs,4ENy','Quotidien',null,'ROLE_USER'),
+(2,'HungryKyle_2', '$2y$13$qOvvtnceX.TjmiFn4c4vFe.hYlIVXHSPHfInEG21D99QZ6/LM70xa', 'Maxime1306@hotmail.fr', 'dhMTBkzwDKxnD;4KNs,4ENy','Quotidien',null,'ROLE_USER'),
 /* raw password is '@dm1n' */
-(3, 'admin', '$2y$13$A8MQM2ZNOi99EW.ML7srhOJsCaybSbexAj/0yXrJs4gQ/2BqMMW2K', 'Maxime1306@hotmail.fr', 'EDDsl&fBCJB|a5XUtAlnQN8', 'ROLE_ADMIN');
+(3, 'admin', '$2y$13$A8MQM2ZNOi99EW.ML7srhOJsCaybSbexAj/0yXrJs4gQ/2BqMMW2K', 'Maxime1306@hotmail.fr', 'EDDsl&fBCJB|a5XUtAlnQN8', null,null, 'ROLE_ADMIN');

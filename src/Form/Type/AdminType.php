@@ -7,15 +7,14 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Validator\Constraints\Image;
-use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\Validator\Constraints as Assert;
 
-class UserType extends AbstractType{
+
+class AdminType extends AbstractType{
 
     public function buildForm(FormBuilderInterface $builder, array $options){
 
         $builder
+            ->add('username', TextType::class)
             ->add('mail', TextType::class)
             ->add('password', RepeatedType::class, array(
                 'type'            => PasswordType::class,
@@ -24,6 +23,12 @@ class UserType extends AbstractType{
                 'first_options'   => array('label' => 'Password'),
                 'second_options'  => array('label' => 'Repeat password'),
             ))
+            ->add('role', ChoiceType::class, array(
+                'choices' => array('Admin' => 'ROLE_ADMIN', 'User' => 'ROLE_USER')))
+            // ->add('avatar', FileType::class, array(
+            //     'mapped' => false, 
+                
+            // ))
             ->add('frequency', ChoiceType::class, array(
             'multiple' => false,
             'choices'  => array( 'Fréquence' => array(
@@ -33,6 +38,7 @@ class UserType extends AbstractType{
                 )
             )));
     }
+
     public function getName(){
         return 'user';
     }

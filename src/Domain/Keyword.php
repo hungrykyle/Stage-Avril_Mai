@@ -33,5 +33,4 @@
 			$this->keyword = $keyword;
 			return $this;
 		}
-		
 }

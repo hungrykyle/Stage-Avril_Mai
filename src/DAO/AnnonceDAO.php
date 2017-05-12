@@ -41,6 +41,27 @@ class AnnonceDAO extends DAO
             $id = $this->getDb()->lastInsertId();
             $annonce->setId($id);
     }
+    
+    // public function AnnoncebyId($id) {
+    //     #Requête SQL
+    //     $sql = 'select * from annonce where ann_id='.$id.' order by ann_id desc';
+    //     $result = $this->getDb()->fetchAll($sql);
+    //     #Tableau qui va contenir toutes les annonces
+    //     foreach ($result as $row) {
+    //         $annonceId = $row['ann_id'];
+    //         $annonce = new Annonce();
+    //         $annonce->setId($row['ann_id']);
+    //         $annonce->setIdUser($row['user_id']);
+    //         $annonce->setTitle($row['ann_title']);
+    //         $annonce->setLink($row['ann_link']);
+    //         $annonce->setDesc($row['ann_desc']);
+    //         $annonce->setResearch($row['ann_research']);
+    //         $annonce->setDate($row['ann_date']);
+    //         $annonce->setIdKeyword($row['keyword_id']);
+           
+    //     }
+    //     return $annonce;
+    // }
     /**
     * Renvoit un tableau d'objet Annonce en fonction de l'idée d'un mot.
     *
@@ -121,6 +142,65 @@ class AnnonceDAO extends DAO
             $annonces[] = $annonce;
         }
      
+        return $annonces;
+    }
+    /**
+    * Renvoit un tableau d'objet Annonce en fonction de l'idée d'un mot, de l'utilisateur et de deux dates.
+    *
+    * @param $id_word Id d'un mot.
+    * @param $date Date de l'heure exacte.
+    * @param $date Date de l'heure exacte - 2 heures.
+    * @param User $user Utilisateur.
+    */  
+     public function allAnnonceByDates($id_word,$date,$date_earlier, User $user) {
+        #Requête SQL
+        $sql = 'select * from annonce where user_id ='.$user->getId().' AND ann_date < \''.$date->format('Y-m-d H:i:s').'\'AND ann_date > \''.$date_earlier->format('Y-m-d H:i:s').'\'  AND keyword_id='.$id_word.' order by ann_id desc';
+        $result = $this->getDb()->fetchAll($sql);
+        #Tableau qui va contenir toutes les annonces
+        $annonces =array();
+        foreach ($result as $row) {
+            $annonceId = $row['ann_id'];
+            $annonce = new Annonce();
+            $annonce->setId($row['ann_id']);
+            $annonce->setIdUser($row['user_id']);
+            $annonce->setTitle($row['ann_title']);
+            $annonce->setLink($row['ann_link']);
+            $annonce->setDesc($row['ann_desc']);
+            $annonce->setResearch($row['ann_research']);
+            $annonce->setDate($row['ann_date']);
+            $annonce->setIdKeyword($row['keyword_id']);
+            $annonces[] = $annonce;
+        }
+     
+        return $annonces;
+    }
+     /**
+    * Renvoit un tableau d'objet Annonce en fonction de l'idée d'un mot, de l'utilisateur et d'une date.
+    *
+    * @param $id_word Id d'un mot.
+    * @param $date Date de l'heure exacte.
+    * @param User $user Utilisateur.
+    */  
+     public function allAnnonceBeforeADate($id_word,$date, User $user) {
+        #Requête SQL
+        $sql = 'select * from annonce where user_id ='.$user->getId().' AND ann_date < \''.$date->format('Y-m-d H:i:s').'\' AND keyword_id='.$id_word.' order by ann_id desc';
+        $result = $this->getDb()->fetchAll($sql);
+        #Tableau qui va contenir toutes les annonces
+        $annonces =array();
+        foreach ($result as $row) {
+            $annonceId = $row['ann_id'];
+            $annonce = new Annonce();
+            $annonce->setId($row['ann_id']);
+            $annonce->setIdUser($row['user_id']);
+            $annonce->setTitle($row['ann_title']);
+            $annonce->setLink($row['ann_link']);
+            $annonce->setDesc($row['ann_desc']);
+            $annonce->setResearch($row['ann_research']);
+            $annonce->setDate($row['ann_date']);
+            $annonce->setIdKeyword($row['keyword_id']);
+            $annonces[] = $annonce;
+        }
+        
         return $annonces;
     }
     /**

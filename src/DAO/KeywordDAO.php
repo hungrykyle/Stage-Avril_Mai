@@ -27,7 +27,7 @@ class KeywordDAO extends DAO
     public function save(Keyword $keyword) {
         $keywordData = array(
             'keyword' => $keyword->getKeyword(),
-            'user_id' => $keyword->getUserId()->getId(),
+            'user_id' => $keyword->getUserId(),
             );
      
            // insert 
@@ -44,7 +44,7 @@ class KeywordDAO extends DAO
     public function update(Keyword $keyword) {
         $keywordData = array(
             'keyword' => $keyword->getKeyword(),
-            'user_id' => $keyword->getUserId()->getId(),
+            'user_id' => $keyword->getUserId(),
             );
      
            // update 
@@ -58,7 +58,7 @@ class KeywordDAO extends DAO
     public function delete(Keyword $keyword) {
         $keywordData = array(
             'keyword' => $keyword->getKeyword(),
-            'user_id' => $keyword->getUserId()->getId(),
+            'user_id' => $keyword->getUserId(),
             );
             // delete 
             $this->getDb()->delete('keyword', $keywordData,array('keyword_id' => $keyword->getId()));
@@ -84,6 +84,21 @@ class KeywordDAO extends DAO
      return $keywords;
     }
     /**
+    * Retourne tous les mots clés d'un utilisateur mais pas sous la forme d'objet.
+    *
+    * @param User $user.
+    */ 
+    public function allwordByUser(User $user) {
+        #Requête SQL
+        $sql = 'select * from keyword where user_id ='.$user->getId().' order by keyword_id desc';
+        $result = $this->getDb()->fetchAll($sql);
+        $keywords =array();
+        foreach ($result as $row) {
+            $keywords[] = $row['keyword'];
+        }
+     return $keywords;
+    }
+    /**
     * Retourne un mot clé en fonction de l'id.
     *
     * @param $id Id du mot clé demandé.
@@ -99,6 +114,23 @@ class KeywordDAO extends DAO
             $keyword->setKeyword($row['keyword']);
         }
         return $keyword;
+    }
+     /**
+    * Retourne un mot clé en fonction de l'id.
+    *
+    * @param $id Id du mot clé demandé.
+    * @param User $user Utilisateur
+    */ 
+    public function idKeywordByUser($id, User $user) {
+        #Requête SQL
+        $sql = 'select * from keyword where keyword_id ='.$id.' and user_id='.$user->getId().' order by keyword_id desc ';
+        $result = $this->getDb()->fetchAll($sql);
+        if (count($result) > 0){
+            return True;
+        }else{
+            return False;
+        }
+        
     }
     /**
     * Supprime tous les mots clés d'un utilisateur.

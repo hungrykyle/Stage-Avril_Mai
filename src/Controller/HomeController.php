@@ -4,6 +4,8 @@
 require_once __DIR__.'/../Scrapper/Scrapper.php';
 require_once __DIR__.'/../Domain/Annonce.php';
 require_once __DIR__.'/../DAO/DAO.php';
+require_once __DIR__.'/../Form/Type/UserType.php';
+require_once __DIR__.'/../Form/Type/ImageType.php';
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -17,7 +19,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class HomeController {
+
+class HomeController  {
 
     /**
     * Home page controller.
@@ -27,6 +30,7 @@ class HomeController {
     public function indexAction(Application $app) {
             return $app['twig']->render('index.html.twig');
     }
+
     /**
     * Login.
     *
@@ -39,10 +43,50 @@ class HomeController {
             'last_username' => $app['session']->get('_security.last_username'),
             ));
     }
-
-    
-    public function adminAction(Application $app) {
-        return $app['twig']->render('index.html.twig');
+    /**
+     * Edit user controller.
+     *
+     * @param Request $request Incoming request
+     * @param Application $app Silex application
+     */
+    public function editUserAction(Request $request, Application $app) {
+        $user = $app['user'];
+        $userForm = $app['form.factory']->create(UserType::class, $user);
+        $userForm->handleRequest($request);
+        if ($userForm->isSubmitted() && $userForm->isValid()) {
+            $plainPassword = $user->getPassword();
+            // find the encoder for the user
+            $encoder = $app['security.encoder_factory']->getEncoder($user);
+            // compute the encoded password
+            $password = $encoder->encodePassword($plainPassword, $user->getSalt());
+            $user->setPassword($password); 
+            $app['dao.user']->save($user);
+            $app['session']->getFlashBag()->add('success', 'L\'utilisateur a bien été modifié.');
+        }
+        return $app['twig']->render('user_form.html.twig', array(
+            'title' => 'Modifier son compte',
+            'userForm' => $userForm->createView()));
+    }
+    /**
+     * Edit image user.
+     *
+     * @param Request $request Incoming request
+     * @param Application $app Silex application
+     */
+    public function editImageAction(Request $request, Application $app) {
+        $user = $app['user'];
+        $userForm = $app['form.factory']->create(ImageType::class, $user);
+        $userForm->handleRequest($request);
+        if ($userForm->isValid()) {
+            $chemin = '/srv/data/web/vhosts/www.okki-prod.fr/htdocs/projetStageMaxime2017/img/';
+            $userForm['avatar']->getData()->move($chemin, $user->getId().'.png');
+            $user->setAvatar('/../../../img/'.$user->getId().'.png'); 
+            $app['dao.user']->save($user);
+            $app['session']->getFlashBag()->add('success', 'L\'image a bien été modifié.');
+        }
+        return $app['twig']->render('user_form_avatar.html.twig', array(
+            'title' => 'Modifier l\'avatar',
+            'userForm' => $userForm->createView()));
     }
     /**
     * Keywords details controller.
@@ -58,13 +102,13 @@ class HomeController {
         $keywords = $app['dao.keyword']->allKeywordByUser($app['user']);
         $form->handleRequest($request);
         if ($form->isValid()) {
-            $data = $form->getData();
-            $word = current($data);
-            return $app->redirect('keyword/add/'.$word);
+            $newkeyword = $form['keyword']->getData() ;
+            return $app->redirect('keyword/add/'.$newkeyword);
+
         }
-        
+       
         // display the form
-        return $app['twig']->render('keyword.html.twig', array('keywords' => $keywords,'form' => $form->createView()));
+        return $app['twig']->render('keyword.html.twig', array('keywords' => $keywords,'form' => $form->createView(),'formtest' => $form->createView()));
     }
 
     /**
@@ -77,11 +121,20 @@ class HomeController {
     
         $keyword = new Keyword();
         $keyword->setKeyword($word);
-        $keyword->setUserId($app['user']);
-        $app['dao.keyword']->save($keyword);
-        $keywords = $app['dao.keyword']->allKeywordByUser($app['user']);
-        return $app->redirect('../../keyword');
+        $keyword->setUserId($app['user']->getId());
+        $allkeywords = $app['dao.keyword']->allwordByUser($app['user']);
+        if (in_array($word, $allkeywords)){
+                $app['session']->getFlashBag()->add('error', 'Ce mot est déjà dans votre liste.');
+                return $app->redirect('../../keyword');
+            }else{
+                $keyword->setKeyword($word);
+                $keyword->setUserId($app['user']->getId());
+                $app['dao.keyword']->save($keyword);
+                return $app->redirect('../../keyword');
+        }
+    
     }
+    
     /**
     * Update Keyword.
     *
@@ -94,13 +147,20 @@ class HomeController {
         require_once __DIR__.'/../Form/Type/KeywordType.php';
         $form_modif = $app['form.factory']->create(KeywordType::class);
         $form_modif->handleRequest($request);
-        if ($form_modif->isValid()) {
+        if ($form_modif->isValid() and $app['dao.keyword']->idKeywordByUser($id,$app['user'])) {
             $data = $form_modif->getData();
+            $allkeywords = $app['dao.keyword']->allwordByUser($app['user']);
             $word = current($data);
-            $keyword->setKeyword($word);
-            $keyword->setUserId($app['user']);
-            $app['dao.keyword']->update($keyword);
-            return $app->redirect('../../keyword');
+            if (in_array($word, $allkeywords)){
+                $app['session']->getFlashBag()->add('error', 'Ce mot est déjà dans votre liste.');
+                return $app->redirect('../../keyword');
+            }else{
+                $keyword->setKeyword($word);
+                $keyword->setUserId($app['user']->getId());
+                $app['dao.keyword']->update($keyword);
+                return $app->redirect('../../keyword');
+            }
+            
         }
         return $app['twig']->render('update.html.twig', array('keyword' => $keyword,'form_modif' => $form_modif->createView()));
     }
@@ -110,10 +170,15 @@ class HomeController {
     * @param $id Id du mot supprimé
     */
     public function keywordDeleteAction($id, Application $app) {
-        $keyword = $app['dao.keyword']->idKeyword($id);
-        $keyword->setUserId($app['user']);
-        $app['dao.keyword']->delete($keyword);
-        return $app->redirect('../../keyword');
+        if ($app['dao.keyword']->idKeywordByUser($id,$app['user'])){
+            $keyword = $app['dao.keyword']->idKeyword($id);
+            $keyword->setUserId($app['user']->getId());
+            $app['dao.keyword']->delete($keyword);
+            $app['session']->getFlashBag()->add('success', 'L\'utilisateur a bien été supprimé.');
+            return $app->redirect('../../keyword');
+        }else{
+            return $app->redirect('../../');
+        }
     }
     /**
     * Scrapper form.
@@ -149,7 +214,7 @@ class HomeController {
             return $app->redirect('scrapper/'.$word->getId().'/'.$research);
         }
         // display the form
-        return $app['twig']->render('test.html.twig', array('form' => $form->createView()));
+        return $app['twig']->render('scrapper.html.twig', array('form' => $form->createView()));
     }
     /**
     * Scrapping demandé par l'utilisateur de l'interface.
@@ -158,11 +223,14 @@ class HomeController {
     * @param $research Moteur de recherche utilisé (Google,Bing)
     */
     public function scrapperAction($id, $research, Application $app) {
-        
-            $keyword = $app['dao.keyword']->idKeyword($id);
-            $annonces = $this->$this->scrapper($keyword,$app['user'],$research,$app);
-        //On affiche
-        return $app['twig']->render('annonce.html.twig', array('annonces_google' => $annonces_google,'annonces_bing' => $annonces_bing));
+            if ($app['dao.keyword']->idKeywordByUser($id,$app['user'])){
+                $keyword = $app['dao.keyword']->idKeyword($id);
+                $annonces = $this->scrapper($keyword,$app['user'],$research,$app);
+                 //On affiche
+                return $app['twig']->render('annonce.html.twig', array('annonces_google' => $annonces[0],'annonces_bing' => $annonces[1]));
+            }else{
+                return $app->redirect('../../');
+            }
     }
     /**
     * Archives.
@@ -172,122 +240,138 @@ class HomeController {
     */
     public function archivesAction(Request $request, Application $app) {
         //On cherche tous les mots clés
-        $keywords = $app['dao.keyword']->allKeywordByUser($app['user']);
-        foreach ($keywords as $key => $value) {
-            $new[$value->getKeyword()] = $value; 
-        }
-        //On crée un formulaire qui demande un mot clé et une date
-        $formBuilder = $app['form.factory']->createBuilder(FormType::class);
-        $formBuilder->add('keywords', ChoiceType::class, array(
-            'multiple' => false,
-            'choices'  => array( 'Mot clé' => $new),
+            $keywords = $app['dao.keyword']->allKeywordByUser($app['user']);
+            foreach ($keywords as $key => $value) {
+                $new[$value->getKeyword()] = $value; 
+            }
+            //On crée un formulaire qui demande un mot clé et une date
+            $formBuilder = $app['form.factory']->createBuilder(FormType::class);
+            $formBuilder->add('keywords', ChoiceType::class, array(
+                'multiple' => false,
+                'choices'  => array( 'Mot clé' => $new),
+                ));
+            $formBuilder->add('dueDate', DateType::class, array(
+            // render as a single text box
+            'widget' => 'single_text',
             ));
-        $formBuilder->add('dueDate', DateType::class, array(
-        // render as a single text box
-        'widget' => 'single_text',
-        ));
-        $form = $formBuilder->getForm();
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            //Si le formulaire est valide on recherche tous les annonces correspondantes
-            $data = $form->getData();
-            $word = current($data);
-            next($data);
-            $date = current($data);
-            $annonces = $app['dao.annonce']->allAnnonceByDate($word->getId(), $date,$app['user']);
-            //On recherche toutes les classes annexes à cette annonce reliées à elle par son Id :
-            $annonces = $this->buildAnnonce($annonces, $app);
-            $annonces_google = array();
-            $annonces_bing = array();
-            foreach ($annonces as $key => $value) {
-                if ($value->getResearch()=='Google')
-                {
-                    $annonces_google[] = $value;
-                }else{
-                    $annonces_bing[] = $value;
+            $form = $formBuilder->getForm();
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                //Si le formulaire est valide on recherche tous les annonces correspondantes
+                $data = $form->getData();
+                $word = current($data);
+                next($data);
+                $date = current($data);
+                $annonces = $app['dao.annonce']->allAnnonceByDate($word->getId(), $date,$app['user']);
+                $all_annonces = array();
+                foreach ($annonces as $key => $value) {
+                    if ($value->getTitle() !== 'Aucune annonce'){
+                        $all_annonces[] = $value;
+                    }
                 }
-                
+                //On recherche toutes les classes annexes à cette annonce reliées à elle par son Id :
+                $all_annonces = $this->buildAnnonce($all_annonces, $app);
+                $annonces_google = array();
+                $annonces_bing = array();
+                foreach ($all_annonces as $key => $value) {
+                    if ($value->getResearch()=='Google')
+                    {
+                        $annonces_google[] = $value;
+                    }else{
+                        $annonces_bing[] = $value;
+                    }
+                }
+                if (!empty($annonces_google)){
+                    $annonces_google = $this->deleteDoublon($annonces_google,$app);
+                }
+                if (!empty($annonces_bing)){
+                    $annonces_bing = $this->deleteDoublon($annonces_bing,$app);
+                }
+                return $app['twig']->render('annonce.html.twig', array('annonces_google' => $annonces_google,'annonces_bing' => $annonces_bing));
             }
-            if (!empty($annonces_google)){
-                $annonces_google = $this->deleteDoublon($annonces_google,$app);
-            }
-            if (!empty($annonces_bing)){
-                $annonces_bing = $this->deleteDoublon($annonces_bing,$app);
-            }
-           
-            return $app['twig']->render('annonce.html.twig', array('annonces_google' => $annonces_google,'annonces_bing' => $annonces_bing));
-        }
-        // display the form
-        return $app['twig']->render('archives.html.twig', array('form' => $form->createView()));
+            // display the form
+            return $app['twig']->render('archives.html.twig', array('form' => $form->createView()));
     }
+    /**
+    * Affiche les annonces d'un mot clé.
+    *
+    * @param $id Id d'un mot
+    * @param Application $app Silex application
+    */
+    public function historyAction($id, Application $app) {
+            if ($app['dao.keyword']->idKeywordByUser($id,$app['user'])){
+                $annonces = $app['dao.annonce']->allAnnonce($id);
+                $all_annonces = array();
+                foreach ($annonces as $key => $value) {
+                    if ($value->getTitle() !== 'Aucune annonce'){
+                        $all_annonces[] = $value;
+                    }
+                }
+                //On recherche toutes les classes annexes à cette annonce reliées à elle par son Id :
+                $all_annonces = $this->buildAnnonce($all_annonces, $app);
+                $annonces_google = array();
+                $annonces_bing = array();
+                foreach ($all_annonces as $key => $value) {
+                    if ($value->getResearch()=='Google')
+                    {
+                        $annonces_google[] = $value;
+                    }else{
+                        $annonces_bing[] = $value;
+                    }
+                    
+                }
+                echo count($annonces_google);
+                echo '<br>';
+                echo count($annonces_bing);
+                echo '<br>';
+
+                if (!empty($annonces_google)){
+                    $filterannonces_google = $this->deleteDoublon(array_reverse($annonces_google),$app);
+                }
+                if (!empty($annonces_bing)){
+                    $filterannonces_bing = $this->deleteDoublon(array_reverse($annonces_bing),$app);
+                }
+                echo count($filterannonces_google);
+                echo '<br>';
+                echo count($filterannonces_bing);
+                echo '<br>';
+                return $app['twig']->render('annonce.html.twig', array('annonces_google' => $filterannonces_google,'annonces_bing' => $filterannonces_bing));
+            }else{
+                return $app->redirect('../');
+            }
+    }
+    
     /**
     * Génération de pdf puis envoie d'e-mail.
     *
     * @param User $user
+    * @param $allAnnonce Array of Annonce
     * @param Application $app Silex application
     */
-    public function actionPdf(User $user , Application $app) {
-    require_once __DIR__.'/../Pdf/PDF.php';
-        $date_today = new DateTime(strftime("%y-%m-%d", mktime(0, 0, 0, date('m'), date('d'), date('y'))));
-        $date_yesterday = new DateTime(strftime("%y-%m-%d", mktime(0, 0, 0, date('m'), date('d')-1, date('y'))));
-        $keywords = $app['dao.keyword']->allKeywordByUser($user);
-        $allAnnonce = array();
-        foreach ($keywords as $key => $keyword) {
-            $str_keyword .= $keyword->getKeyword().' ';
-            $annonces_today = $app['dao.annonce']->allAnnonceByDate($keyword->getId(),$date_today,$user);
-            $annonces_yesterday = $app['dao.annonce']->allAnnonceByDate($keyword->getId(),$date_yesterday,$user);
-            if (!empty($annonces_today)){
-                $annonces_today = $this->deleteDoublon($annonces_today,$app);
-            }
-            foreach ($annonces_today as $key => $today) {
-                $newAnnonce = array();
-                $cmpt = 0;
-                $getDate_today = $today->getDate();
-                $getId_today = $today ->getId();
-                $today->setId(0);
-                $today->setDate("");
-                foreach ($annonces_yesterday as $key => $yesterday) {
-                    $getDate_yesterday = $yesterday->getDate();
-                    $getId_yesterday = $yesterday ->getId();
-                    $yesterday->setId(0);
-                    $yesterday->setDate("");
-                    if ($this->compareAnnonce($today,$yesterday,$app)) {
-                        $cmpt = $cmpt +1;
-                    }
-                    $yesterday->setId($getId_yesterday);
-                    $yesterday->setDate($getDate_yesterday); 
-                }
-                if ($cmpt == 0) {
-                        $newAnnonce[] = $today;
-                }
-                $today->setId($getId_today);
-                $today->setDate($getDate_today); 
-            }
-            $allAnnonce[$keyword->getKeyword()] = $newAnnonce;
-        }
-        
-
+    public function actionPdf(User $user ,$allAnnonce, Application $app) {
+    require_once __DIR__.'/../Pdf/PDF.php';   
         //Création d'un instance de classe PDF
         $pdf = new PDF();
         $titre = utf8_decode('Rapport d\'activité');
         $pdf->SetTitle($titre); //Titre
         $pdf->SetAuthor('Okki'); // Auteur
         $pdf->AddPage(); //On ouvre un page
-        $today  = new DateTime(strftime("%y-%m-%d", mktime(0, 0, 0, date('m'), date('d'), date('y'))));
-        $pdf->InfoRapport($str_keyword, $today->format("y-m-d"), $user); // On rajoute des informations en début de page
+        $today = new DateTime(strftime("%y-%m-%d", mktime(0,0,0, date('m'), date('d'), date('y'))));
+        $today->setTime(date('H'), date('i'),date('s'));
+        $pdf->InfoRapport($today->format("y-m-d H:i:s"), $user); // On rajoute des informations en début de page
         foreach ($allAnnonce as $key => $value) { //On rajoute chaque annonce une par une 
             $pdf->AjouterAnnonceKeyword($key, $value);
         }
-        $chemin = '/srv/data/web/vhosts/www.okki-prod.fr/htdocs/projetStageMaxime2017/pdf/'.$user->getId().'/'.$today->format("y-m-d").'.pdf';
+        $chemin = '/srv/data/web/vhosts/www.okki-prod.fr/htdocs/projetStageMaxime2017/pdf/'.$user->getId().'/rapport/pdf/'.$today->format("y-m-d").'.pdf';
         $pdf->Output($chemin, "F"); 
         //On édite le pdf
-        $messagebody = 'Voici votre rapport '.$user->getUsername();
-        $name        = "Maxime Husslein";
+        $messagebody = 'Voici votre rapport, '.$user->getUsername();
+        $name        = "Okki";
         $subject = "Message from ".$name;
         $rapport = New Rapport();
-        $rapport->setDate($date_today);
+        $rapport->setDate($today);
         $rapport->setLinkRapport($chemin);
-        $rapport->setIdUser($user);
+        $rapport->setIdUser($user->getId());
         $app['dao.rapport']->save($rapport);
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
@@ -299,7 +383,69 @@ class HomeController {
                 'message'  => $messagebody,
                 )),'text/html');
         $app['mailer']->send($message);
-          
+        // Envoie un mail aux admin qui le souhaitent
+        $watchs = $app['dao.watch']->allWatchByUser($user);
+        $admins = $app['dao.user']->findAllAdmin();
+        foreach ($watchs as $key => $watch) {
+            foreach ($admins as $key => $admin) {
+                if ($admin->getId()===$watch->getAdminId()) {
+                    $messagebodyadmin = 'Voici le rapport de : '.$user->getUsername();
+                    $message = \Swift_Message::newInstance()
+                    ->setSubject($subject)
+                    ->setFrom(array('mailokkitest@gmail.com')) // replace with your own
+                    ->setTo(array('mailokkitest@gmail.com'))   // replace with email recipient
+                    ->attach(\Swift_Attachment::fromPath($chemin), "Un pdf attaché")
+                    ->setBody($app['twig']->render('email.html.twig',   // email template
+                        array('name'      => $name,
+                        'message'  => $messagebodyadmin,
+                        )),'text/html');
+                    $app['mailer']->send($message);
+                }
+            }
+        }  
+    }
+      /**
+    * Génération de pdf puis envoie d'e-mail.
+    *
+    * @param User $user
+    * @param $allAnnonce Array of Annonce²
+    * @param Application $app Silex application
+    */
+    public function actionNotifPdf(User $user , $allAnnonce, Application $app) {
+    require_once __DIR__.'/../Pdf/PDF.php';   
+        //Création d'un instance de classe PDF
+        $pdf = new PDF();
+        $titre = utf8_decode('De nouvelles annonces ont été trouvé');
+        $pdf->SetTitle($titre); //Titre
+        $pdf->SetAuthor('Okki'); // Auteur
+        $pdf->AddPage(); //On ouvre un page
+        $today = new DateTime(strftime("%y-%m-%d", mktime(0,0,0, date('m'), date('d'), date('y'))));
+        $today->setTime(date('H'), date('i'),date('s'));
+        $pdf->InfoRapport($today->format("y-m-d H:i:s"), $user); // On rajoute des informations en début de page
+        foreach ($allAnnonce as $key => $value) { //On rajoute chaque annonce une par une 
+            $pdf->AjouterAnnonceKeyword($key, $value);
+        }
+        $chemin = '/srv/data/web/vhosts/www.okki-prod.fr/htdocs/projetStageMaxime2017/pdf/'.$user->getId().'/newannonce/pdf/'.$today->format("y-m-d_H-i-s").'.pdf';
+        $pdf->Output($chemin, "F"); 
+        //On édite le pdf
+        $messagebody = 'De nouvelles annonces ont été trouvé, '.$user->getUsername();
+        $name        = "Okki";
+        $subject = "Message from ".$name;
+        $notif = New Notif();
+        $notif->setDate($today);
+        $notif->setLinkNotif($chemin);
+        $notif->setIdUser($user->getId());
+        $app['dao.notif']->save($notif);
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom(array('mailokkitest@gmail.com')) // replace with your own
+            ->setTo(array('mailokkitest@gmail.com'))   // replace with email recipient
+            ->attach(\Swift_Attachment::fromPath($chemin), "Un pdf attaché")
+            ->setBody($app['twig']->render('email.html.twig',   // email template
+                array('name'      => $name,
+                'message'  => $messagebody,
+                )),'text/html');
+        $app['mailer']->send($message);
     }
     /**
     * Récupération des élèments d'un tableau d'annonces.
@@ -340,13 +486,7 @@ class HomeController {
     * @param $annonces tableau d'annonce
     * @param Application $app Silex application
     */
-    public function deleteDoublon($annonce, Application $app) {
-        $annonces = array();
-        foreach ($annonce as $key => $value) {
-            if ($value->getTitle() !== 'Aucune annonce'){
-                $annonces[] = $value;
-            }
-        }
+    public function deleteDoublon($annonces, Application $app) {
         $count = count($annonces);
         $cmpt = 0;
         $index_array= array();
@@ -380,68 +520,182 @@ class HomeController {
         $nbr_lienannonce_2 = count($annonce_2->getLienAnnonce());
         $nbr_miniannonce_1 = count($annonce_1->getMiniAnnonce());
         $nbr_miniannonce_2 = count($annonce_2->getMiniAnnonce());
-        if ($annonce_1->getTitle() === $annonce_2->getTitle() and  $annonce_1->getLink() === $annonce_2->getLink() and  $annonce_1->getDesc() === $annonce_2->getDesc() and $annonce_1->getStringExtra() === $annonce_2->getStringExtra() ) {
-           if ($annonce_1->getScore() === $annonce_2->getScore()){
+        if ($annonce_1->getTitle() === $annonce_2->getTitle() and  $annonce_1->getLink() === $annonce_2->getLink() and  $annonce_1->getDesc() === $annonce_2->getDesc()) {
                if ($nbr_lienannonce_1 === $nbr_lienannonce_2) {
                    if ($nbr_miniannonce_1 === $nbr_miniannonce_2) {
                        if ($nbr_lienannonce_1 !==0){
                             foreach ($annonce_1->getLienAnnonce() as $key => $lien) {
-                                $lienannonces1[$lien->getTitle()] = $lien->getLink();
+                                $lienannoncestemp1[$lien->getTitle()] = $lien;
                             }
                             foreach ($annonce_2->getLienAnnonce() as $key => $lien) {
-                                $lienannonces2[$lien->getTitle()] = $lien->getLink();
+                                $lienannoncestemp2[$lien->getTitle()] = $lien;
                             }
-                            ksort($lienannonces1);
-                            ksort($lienannonces2);
+                            ksort($lienannoncestemp1);
+                            ksort($lienannoncestemp2);
+                            foreach ($lienannoncestemp1 as $key => $lienannonce) {
+                                $lienannonces1[] = $lienannonce;
+                            }
+                            foreach ($lienannoncestemp2 as $key => $lienannonce) {
+                                $lienannonces2[] = $lienannonce;
+                            }
                             $cmpt = 0;
                             while ($cmpt < $nbr_lienannonce_1) {
-                                if ((current($lienannonces1) !== current($lienannonces2)) Or (key($lienannonces1) !== (key($lienannonces2)))) {
+                                $res = $this->compareLienAnnonce($lienannonces1[$cmpt],$lienannonces2[$cmpt],$app);
+                                if (!$res){
                                     return FALSE;
                                 }
-                                next($lienannonces1);
-                                next($lienannonces2);
-                                $cmpt = $cmpt + 1;
+                                $cmpt = $cmpt +1;
                             }
                        }
                        if ($nbr_miniannonce_1 !==0){
                             foreach ($annonce_1->getMiniAnnonce() as $key => $mini) {
-                                $miniannonces1[$mini->getTitle()] = $mini->getLink() + ' ' + $mini->getDesc();
+                                $miniannoncestemp1[$mini->getTitle()] = $mini;
                             }
                             foreach ($annonce_2->getMiniAnnonce() as $key => $mini) {
-                                $miniannonces2[$mini->getTitle()] = $mini->getLink() + ' ' + $mini->getDesc();
+                                $miniannoncestemp2[$mini->getTitle()] = $mini;
                             }
-                            ksort($miniannonces1);
-                            ksort($miniannonces2);
+                            ksort($miniannoncestemp1);
+                            ksort($miniannoncestemp2);
+                            foreach ($miniannoncestemp1 as $key => $miniannonce) {
+                                $miniannonces1[] = $miniannonce;
+                            }
+                            foreach ($miniannoncestemp2 as $key => $miniannonce) {
+                                $miniannonces2[] = $miniannonce;
+                            }
                             $cmpt = 0;
                             while ($cmpt < $nbr_miniannonce_1) {
-                                if ((current($miniannonces1) !== current($miniannonces2)) Or (key($miniannonces1) !== (key($miniannonces2)))) {
+                                $res = $this->compareMiniAnnonce($miniannonces1[$cmpt],$miniannonces2[$cmpt],$app);
+                                if (!$res){
                                     return FALSE;
                                 }
-                                next($miniannonces1);
-                                next($miniannonces1);
-                                $cmpt = $cmpt + 1;
+                                $cmpt = $cmpt +1;
                             }
                        }
+                   }else{
+                       return FALSE;
                    }
+               }else{
+                   return FALSE;
                }
-           } 
-       }
-       return TRUE;
+        }else{
+            return FALSE;
+        }
+        return TRUE;            
     }
     /**
-    * Script lancé par le cron
+    * Compare deux LienAnnonce
+    *
+    * @param $lienannonce_1 premier LienAnnonce
+    * @param $lienannonce_2 second LienAnnonce
+    * @param Application $app Silex application
+    */
+    public function compareLienAnnonce(LienAnnonce $lienannonce_1, LienAnnonce $lienannonce_2, Application $app) {
+        if ($lienannonce_1->getTitle() === $lienannonce_1->getTitle()){
+            if ($lienannonce_1->getLink() === $lienannonce_1->getLink()){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
+        }else{
+            return FALSE;
+        }
+
+    }
+    /**
+    * Compare deux MiniAnnonce
+    *
+    * @param $miniannonce_1 premier MiniAnnonce
+    * @param $miniannonce_2 second MiniAnnonce
+    * @param Application $app Silex application
+    */
+    public function compareMiniAnnonce(MiniAnnonce $miniannonce_1, MiniAnnonce $miniannonce_2, Application $app) {
+        if ($miniannonce_1->getTitle() === $miniannonce_2->getTitle()){
+            if ($miniannonce_1->getLink() === $miniannonce_2->getLink()){
+                if ($miniannonce_1->getDesc() === $miniannonce_2->getDesc()){
+                    return TRUE;
+                }else{
+                    return FALSE;
+                }
+            }else{
+                return FALSE;
+            }
+        }else{
+            return FALSE;
+        }
+    }
+    /**
+    * Script lancé par le cron pour envoyer les rapports d'activités
     *
     * @param Application $app Silex application
     */
     public function actionScript(Application $app) {
         $users = $app['dao.user']->findAll();
         foreach ($users as $key => $user) {
+            if ($user->getFrequency() === 'Quotidien'){
+                $user_quotidien[] = $user;
+            }else if ($user->getFrequency() === 'Hebdomadaire'){
+                $user_hebdo[] = $user;
+            }else{
+                $user_mensuel[] = $user;
+            }
+        }
+        $date_today = new DateTime(strftime("%y-%m-%d", mktime(0,0,0, date('m'), date('d'), date('y'))));
+        $date_today->setTime(date('H'), date('i'),date('s'));
+        //Vérifies qu'aucun rapport n'a été envoyé aujourd'hui
+        $nbr = count($app['dao.rapport']->allRapportByDate($date_today));
+        if ($nbr === 0) {
+            $date_before = new DateTime(strftime("%y-%m-%d", mktime(0,0,0, date('m'), date('d')-1, date('y'))));
+            $date_before->setTime(date('H'), date('i'),date('s'));
+            foreach ($user_quotidien as $key => $quotidien) {
+                $keywords = $app['dao.keyword']->allKeywordByUser($quotidien);
+                $allAnnonce = $this->newAnnonce($keywords, $quotidien,$date_today,$date_before, $app);
+                $this->actionPdf($quotidien,$allAnnonce, $app);
+            }
+            // Vérifie si le jour est lundi
+            if ($date_today->format("D") === 'Mon'){
+                $date_before = new DateTime(strftime("%y-%m-%d", mktime(0,0,0, date('m'), date('d')-7, date('y'))));
+                $date_before->setTime(date('H'), date('i'),date('s'));
+                foreach ($user_hebdo as $key => $hebdo) {
+                    $keywords = $app['dao.keyword']->allKeywordByUser($hebdo);
+                    $allAnnonce = $this->newAnnonce($keywords, $hebdo,$date_today,$date_before, $app);
+                    $this->actionPdf($hebdo,$allAnnonce, $app);
+                }
+            }
+            //Vérifie si le jour est le premier du mois
+            if ($date_today->format("d") === '01'){
+                $date_before = new DateTime(strftime("%y-%m-%d", mktime(0,0,0, date('m')-1, date('d'), date('y'))));
+                $date_before->setTime(date('H'), date('i'),date('s'));
+                foreach ($user_mensuel as $key => $mensuel) {
+                    $keywords = $app['dao.keyword']->allKeywordByUser($mensuel);
+                    $allAnnonce = $this->newAnnonce($keywords, $mensuel,$date_today,$date_before, $app);
+                    $this->actionPdf($mensuel,$allAnnonce, $app);
+                }
+            }
+        }
+      return new Response('Thank you for your feedback!', 201);
+    }
+    /**
+    * Script lancé par le cron qui envoit un email si de nouveaux mails ont été trouvé
+    *
+    * @param Application $app Silex application
+    */
+    public function notifAction(Application $app) {
+        $users = $app['dao.user']->findAll();
+        foreach ($users as $key => $user) {
             $keywords = $app['dao.keyword']->allKeywordByUser($user);
                 foreach ($keywords as $key => $keyword) {
                     $this->scrapper($keyword, $user, 'All', $app);
-                }
-            echo $user->getId();
-            $this->actionPdf($user, $app);
+            }
+            $date_today = new DateTime(strftime("%y-%m-%d", mktime(0,0,0, date('m'), date('d'), date('y'))));
+            $date_today->setTime(date('H')+1, date('i'),date('s'));
+            $date_before = new DateTime(strftime("%y-%m-%d", mktime(0,0,0, date('m'), date('d'), date('y'))));
+            $date_before->setTime(date('H')-2, date('i'),date('s'));
+            $allAnnonce = $this->newAnnonce($keywords, $user,$date_today,$date_before, $app);
+            if (!empty($allAnnonce)){
+                $this->actionNotifPdf($user, $allAnnonce, $app);
+            }else{
+                echo 'EMPTY';
+            }    
       }
       return new Response('Thank you for your feedback!', 201);
     }
@@ -488,6 +742,9 @@ class HomeController {
         foreach ($annonces as $value) {
             $value->setIdKeyword($keyword->getId());   
             $value->setIdUser($user);
+            $date = new DateTime(strftime("%y-%m-%d", mktime(0,0,0, date('m'), date('d'), date('y'))));
+            $date->setTime(date('H'), date('i'),date('s'));
+            $value->setDate($date->format('Y-m-d H:m:s'));
             $app['dao.annonce']->save($value);
             //Enregistrement de chaque lien en dessous des annonces
             if (!empty($value->getLienAnnonce())){
@@ -523,16 +780,48 @@ class HomeController {
         $annonces_google = array();
         $annonces_bing = array();
         foreach ($annonces as $key => $value) {
-            if ($value->getResearch()=='Google'){
+            if ($value->getResearch()==='Google'){
                     $annonces_google[] = $value;
                 }else{
                     $annonces_bing[] = $value;
                 }
-                
         }
-        $annonces [] = $annonces_google;
-        $annonces [] = $annonces_bing;
+        $annonces [0] = $annonces_google;
+        $annonces [1] = $annonces_bing;
         return $annonces;
-
+    }
+    /**
+    * Cherche si une nouvelle annonce a été trouvé
+    *
+    * @param $keyword tableau d'objet keywords
+    * @param Application $app Silex application
+    */
+    public function newAnnonce($keywords, $user, $date_today, $date_before, Application $app) {
+            $allAnnonce = array();
+            foreach ($keywords as $key => $keyword) {
+            $annonces_today = $app['dao.annonce']->allAnnonceByDates($keyword->getId(),$date_today,$date_before,$user);
+            $annonces_before = $app['dao.annonce']->allAnnonceBeforeADate($keyword->getId(),$date_before,$user);
+            if (!empty($annonces_today)){
+                $annonces_today = $this->buildAnnonce($annonces_today, $app);
+                $annonces_before = $this->buildAnnonce($annonces_before, $app);
+                $annonces_today = $this->deleteDoublon($annonces_today,$app);
+            }
+            $newAnnonce = array();
+            foreach ($annonces_today as $key => $today) {
+                $cmpt = 0;
+                foreach ($annonces_before as $key => $before) {
+                    if ($this->compareAnnonce($today,$before,$app)) {
+                        $cmpt = $cmpt +1;
+                    }
+                }
+                if ($cmpt === 0) {
+                        $newAnnonce[] = $today;
+                }
+            }
+            if (!empty($newAnnonce)){
+                $allAnnonce[$keyword->getKeyword()] = $newAnnonce;
+            }
+        }
+        return $allAnnonce;
     }
 }

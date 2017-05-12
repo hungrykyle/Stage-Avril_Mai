@@ -39,12 +39,34 @@ class User implements UserInterface{
     */
     private $role;
     /**
+    * frequency
+    * Values : QUOTIDIEN or HEBDOMADAIRE or MENSUEL.
+    *
+    * @var string
+    */
+    private $frequency;
+    /**
     * Mail
     * Values : E-mail.
     *
     * @var string
     */
     private $mail;
+    /**
+    * Avatar
+    * Values : Lien vers une image.
+    *
+    * @var string
+    */
+    private $avatar;
+    /**
+    * Watch
+    * Values : Objet Watch.
+    *
+    * @var Watch
+    */
+    private $watch;
+    
     
     public function getId() {
         return $this->id;
@@ -94,9 +116,34 @@ class User implements UserInterface{
         $this->mail = $mail;
         return $this;
     }
+    public function getAvatar()
+    {
+        return $this->avatar;
+    }
+    public function setAvatar($avatar) {
+        $this->avatar = $avatar;
+        return $this;
+    }
+    public function getWatch()
+    {
+        return $this->watch;
+    }
+    public function setWatch($watch) {
+        $this->watch = $watch;
+        return $this;
+    }
     public function getRoles()
     {
         return array($this->getRole());
+    }
+    public function getFrequency()
+    {
+        return $this->frequency;
+    }
+    public function setFrequency($frequency)
+    {
+        $this->frequency = $frequency;
+        return $this;
     }
     public function eraseCredentials() {
         // Nothing to do here

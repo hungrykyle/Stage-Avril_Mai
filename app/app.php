@@ -20,6 +20,8 @@ require_once __DIR__.'/../src/DAO/MiniAnnonceDAO.php';
 require_once __DIR__.'/../src/DAO/ExtraDAO.php';
 require_once __DIR__.'/../src/DAO/RapportDAO.php';
 require_once __DIR__.'/../src/DAO/UserDAO.php';
+require_once __DIR__.'/../src/DAO/NotifDAO.php';
+require_once __DIR__.'/../src/DAO/WatchDAO.php';
 
 
 // Register global error and exception handlers
@@ -101,11 +103,21 @@ $app['dao.rapport'] = function ($app) {
 
     return new RapportDAO($app['db']);
 };
+$app['dao.notif'] = function ($app) {
+
+    return new NotifDAO($app['db']);
+};
 $app['dao.user'] = function ($app) {
 
     return new UserDAO($app['db']);
 
 };
+$app['dao.watch'] = function ($app) {
+
+    return new WatchDAO($app['db']);
+
+};
+
 
 $app->register(new Silex\Provider\SessionServiceProvider());
 
@@ -125,5 +137,11 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
                 return new UserDAO($app['db']);
             },
         ),
+    ),
+    'security.role_hierarchy' => array(
+        'ROLE_ADMIN' => array('ROLE_USER'),
+    ),
+    'security.access_rules' => array(
+        array('^/admin', 'ROLE_ADMIN'),
     ),
 ));

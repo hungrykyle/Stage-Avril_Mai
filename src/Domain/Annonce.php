@@ -83,9 +83,31 @@
 			$this->idkey = $idkey;
 			return $this;
 		}
-		//Les liens de l'annonces associés
+		//Les liens de l'annonces associés dans l'ordre alphabétique
 		public function getLienAnnonce() {
-			return $this->lien_annonce;
+			if (isset($this->lien_annonce)){
+				$all_lien_annonce = $this->lien_annonce;
+				foreach ($all_lien_annonce as $key => $value) {
+					$all_title[] = $value -> getTitle();
+				}
+				sort($all_title);
+				$nbr = count ($all_lien_annonce);
+				$i = 0;
+				$res = array();
+				while ($i < $nbr){
+					foreach ($all_lien_annonce as $key => $value) {
+						if ($value->getTitle() === $all_title[$i]){
+							$res[$i] = $value;
+							$i = $i + 1;
+						}
+					}
+				}
+				$this->lien_annonce = $res;
+				return $this->lien_annonce;
+			}else{
+				return $this->lien_annonce;
+			}
+			
 		}
 		public function setLienAnnonce($lien_annonce) {
 			$this->lien_annonce = $lien_annonce;
@@ -93,7 +115,29 @@
 		}
 		//Les minis annonces associées
 		public function getMiniAnnonce() {
-			return $this->mini_annonce;
+			if (isset($this->mini_annonce)){
+				$all_mini_annonce = $this->mini_annonce;
+				foreach ($all_mini_annonce as $key => $value) {
+					$all_title[] = $value -> getTitle();
+				}
+				sort($all_title);
+				$nbr = count ($all_mini_annonce);
+				$i = 0;
+				$res = array();
+				while ($i < $nbr){
+					foreach ($all_mini_annonce as $key => $value) {
+						if ($value->getTitle() === $all_title[$i]){
+							$res[$i] = $value;
+							$i = $i + 1;
+						}
+					}
+				}
+				return $res;
+			}else{
+				return $this->mini_annonce;
+			}
+			$this->mini_annonce = $mini_annonce;
+			return $this;
 		}
 		//Compte le nombre de Mini Annonce (pour l'affichage twig')
 		public function getCountMiniAnnonce() {
